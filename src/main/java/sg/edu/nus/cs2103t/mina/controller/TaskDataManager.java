@@ -37,15 +37,15 @@ public class TaskDataManager {
         // empty constructor class
     }
 
-    public static TreeSet<TodoTask> getTodoTreeSet() {
+    public static TreeSet<TodoTask> getTodoTasks() {
         return _todoTreeSet;
     }
 
-    public static TreeSet<DeadlineTask> getDeadlineTreeSet() {
+    public static TreeSet<DeadlineTask> getDeadlineTasks() {
         return _deadlineTreeSet;
     }
 
-    public static TreeSet<EventTask> getEventTreeSet() {
+    public static TreeSet<EventTask> getEventTasks() {
         return _eventTreeSet;
     }
 

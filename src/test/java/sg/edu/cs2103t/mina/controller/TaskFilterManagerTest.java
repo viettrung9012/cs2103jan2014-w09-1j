@@ -18,35 +18,35 @@ public class TaskFilterManagerTest {
 	private TaskDataManagerStub tdmStub= new TaskDataManagerStub();
 	private TaskFilterManager tfmTest = new TaskFilterManager(tdmStub);
 	
-	@Test
-	public void viewOutput(){
-		//check for output
-		TaskDataManagerStub tdm = tdmStub;
-		
-		Iterator<TodoTask> todoIterator; 
-		todoIterator = tdm.getTodoTasks().iterator();
-		
-		while(todoIterator.hasNext()){
-			TodoTask task = todoIterator.next();
-			if(task!=null)
-				printTodo(task);
-		}
-		
-		Iterator<EventTask> eventIterator;
-		eventIterator = tdm.getEventTasks().iterator();
-		
-		while(eventIterator.hasNext()){
-			printEvent(eventIterator.next());
-		}
-		
-		Iterator<DeadlineTask> deadlineIterator;
-		deadlineIterator = tdm.getDeadlineTasks().iterator();
-		
-		while(deadlineIterator.hasNext()){
-			printDeadline(deadlineIterator.next());
-		}
-		assertTrue(true);
-	}
+//	@Test
+//	public void viewOutput(){
+//		//check for output
+//		TaskDataManagerStub tdm = tdmStub;
+//		
+//		Iterator<TodoTask> todoIterator; 
+//		todoIterator = tdm.getTodoTasks().iterator();
+//		
+//		while(todoIterator.hasNext()){
+//			TodoTask task = todoIterator.next();
+//			if(task!=null)
+//				printTodo(task);
+//		}
+//		
+//		Iterator<EventTask> eventIterator;
+//		eventIterator = tdm.getEventTasks().iterator();
+//		
+//		while(eventIterator.hasNext()){
+//			printEvent(eventIterator.next());
+//		}
+//		
+//		Iterator<DeadlineTask> deadlineIterator;
+//		deadlineIterator = tdm.getDeadlineTasks().iterator();
+//		
+//		while(deadlineIterator.hasNext()){
+//			printDeadline(deadlineIterator.next());
+//		}
+//		assertTrue(true);
+//	}
 	
 	@Test (expected=NullPointerException.class)
 	public void testFilterVoid() {
@@ -70,11 +70,11 @@ public class TaskFilterManagerTest {
 		for (Task t: test) {
 			
 			if (t instanceof TodoTask) {
-				isExist = tdmStub.getTodoTasks().contains((TodoTask) t);
+				isExist = TaskDataManagerStub.getTodoTasks().contains((TodoTask) t);
 			} else if(t instanceof EventTask) {
-				isExist = tdmStub.getEventTasks().contains((EventTask)t);
+				isExist = TaskDataManagerStub.getEventTasks().contains((EventTask)t);
 			} else if(t instanceof DeadlineTask) {
-				isExist = tdmStub.getDeadlineTasks().contains((DeadlineTask)t);
+				isExist = TaskDataManagerStub.getDeadlineTasks().contains((DeadlineTask)t);
 			}
 			if(!isExist) {
 				break;
@@ -95,7 +95,7 @@ public class TaskFilterManagerTest {
 		
 		ArrayList<Task<?>> test = getResult(TaskFilterManager.DEADLINE);
 		
-		TreeSet<DeadlineTask> deadlines = tdmStub.getDeadlineTasks();
+		TreeSet<DeadlineTask> deadlines = TaskDataManagerStub.getDeadlineTasks();
 		int numOfDeadlines = deadlines.size();
 		
 		assertTrue("Must be all deadlines!", numOfDeadlines == test.size() &&
@@ -113,7 +113,7 @@ public class TaskFilterManagerTest {
 	public void testTodosOnly(){
 
 		ArrayList<Task<?>> test = getResult(TaskFilterManager.TODO);
-		TreeSet<TodoTask> todos = tdmStub.getTodoTasks();
+		TreeSet<TodoTask> todos = TaskDataManagerStub.getTodoTasks();
 		int numOfTodos = todos.size();
 		
 		assertTrue("Must be all todos!", numOfTodos == test.size() &&
@@ -130,7 +130,7 @@ public class TaskFilterManagerTest {
 	public void testEventsOnly(){
 
 		ArrayList<Task<?>> test = getResult(TaskFilterManager.EVENT);
-		TreeSet<EventTask> events = tdmStub.getEventTasks();
+		TreeSet<EventTask> events = TaskDataManagerStub.getEventTasks();
 		int numOfEvents = events.size();
 		
 		assertTrue("Must be all events!", numOfEvents == test.size() &&
@@ -169,7 +169,7 @@ public class TaskFilterManagerTest {
 															TreeSet<? extends Task<?>> taskTree,
 															TaskType type) {
 		
-		for (Task task: test) {
+		for (Task<?> task: test) {
 			if( !(isTask(task, type) && taskTree.contains(task)) ) {
 				return false;
 			}
@@ -178,7 +178,7 @@ public class TaskFilterManagerTest {
 		return true;
 	}
 	
-	private boolean isTask(Task task, TaskType type) {
+	private boolean isTask(Task<?> task, TaskType type) {
 		
 		boolean isTask;
 		
@@ -198,32 +198,8 @@ public class TaskFilterManagerTest {
 		
 		return isTask;
 	}
-
-
-	/**
-	 * To compare with tasks for now. The current task compareTo
-	 * has a bug.
-	 * 
-	 * @param task
-	 * @param todoTasks
-	 * @return true if they match. False, if they don't
-	 */
-	private boolean compareTodo(Task task, 
-															TreeSet<TodoTask> todoTasks) {
-		
-		Iterator<TodoTask> todoIter = todoTasks.iterator();
-		
-		while (todoIter.hasNext()) {
-			TodoTask todo = todoIter.next();
-			if (todo.getDescription().equals(task.getDescription())) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
 	
-	public String toStringForTask(Task task){
+	public String toStringForTask(Task<?> task){
 		String format = "UUID: %1$s\n" +
 										"Type: %2$s\n" +
 										"Description: %3$s\n" +

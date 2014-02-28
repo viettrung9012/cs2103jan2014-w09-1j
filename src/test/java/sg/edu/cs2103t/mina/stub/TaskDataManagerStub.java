@@ -9,18 +9,23 @@ import sg.edu.nus.cs2103t.mina.model.*;
 
 public class TaskDataManagerStub extends TaskDataManager{
 	
-	TreeSet<TodoTask> _todoTasks;
-	TreeSet<EventTask> _eventTasks;
-	TreeSet<DeadlineTask> _deadlineTasks;
+	private static TreeSet<TodoTask> _todoTasks;
+	private static TreeSet<EventTask> _eventTasks;
+	private static TreeSet<DeadlineTask> _deadlineTasks;
 	
-	TreeSet<TodoTask> _compTodoTasks;
-	TreeSet<EventTask> _compEventTasks;
-	TreeSet<DeadlineTask> _compDeadlineTasks;
+	private static TreeSet<TodoTask> _compTodoTasks;
+	private static TreeSet<EventTask> _compEventTasks;
+	private static TreeSet<DeadlineTask> _compDeadlineTasks;
 	
 	public TaskDataManagerStub(){
-		_todoTasks = new TreeSet<TodoTask>();
-		_eventTasks = new TreeSet<EventTask>();
-		_deadlineTasks = new TreeSet<DeadlineTask>();
+		
+		_todoTasks = TaskDataManager.getTodoTasks();
+		_eventTasks = TaskDataManager.getEventTasks();
+		_deadlineTasks = TaskDataManager.getDeadlineTasks();
+		
+		_compTodoTasks= new TreeSet<TodoTask>();
+		_compEventTasks = new TreeSet<EventTask>();
+		_compDeadlineTasks = new TreeSet<DeadlineTask>();
 		
 		char[] roulette = {'L', 'M', 'H'};
 		
@@ -28,10 +33,16 @@ public class TaskDataManagerStub extends TaskDataManager{
 		int oneDay = 1000*60*60*24;
 		int oneHour = 1000*60*60;
 		
-		for(int i=0; i<20; i++){
+		for (int i=0; i<20; i++) {
 			
-			TodoTask newTodoTask = new TodoTask("Do item " + i + " on the list", roulette[i%3]);
-			_todoTasks.add(newTodoTask);
+			TodoTask newTodoTask = new TodoTask("Do item " + i + " on the list", 
+																					roulette[i%3]);
+			if(i%5==0){
+				newTodoTask.setCompleted(true);
+				_compTodoTasks.add(newTodoTask);
+			} else {
+				_todoTasks.add(newTodoTask);
+			}
 			
 			int time = oneDay + rand.nextInt(oneDay*15);
 			Date startTime = new Date();
@@ -41,39 +52,62 @@ public class TaskDataManagerStub extends TaskDataManager{
 			endDate.setTime(startTime.getTime() + oneHour*2);
 			
 			EventTask newEventTask = new EventTask("Event " + i, startTime, endDate);
-			_eventTasks.add(newEventTask);
+			if(i%10==0){
+				//Make it into the past
+				Date pastStart = new Date((new Date()).getTime() - time);
+				newEventTask.setStartTime(pastStart);
+				
+				Date pastEnd = new Date(pastStart.getTime() + oneHour*2);
+				newEventTask.setEndTime(pastEnd);
+				
+				newEventTask.setCompleted(true);
+				_compEventTasks.add(newEventTask);
+				
+			} else {
+				_eventTasks.add(newEventTask);
+			}			
+			
 			
 			time = oneDay + rand.nextInt(oneDay*15);
 			startTime = new Date();
 			startTime.setTime(startTime.getTime() + time);
+			
 			DeadlineTask newDeadline = new DeadlineTask("Deadline " + i, startTime);
-			_deadlineTasks.add(newDeadline);
+			if (i%6==0) { 
+				//Make it into the past
+				Date pastEnd = new Date((new Date()).getTime() - time);
+				newDeadline.setEndTime(pastEnd);
+				newDeadline.setCompleted(true);
+				_compDeadlineTasks.add(newDeadline);
+			} else {
+				_deadlineTasks.add(newDeadline);
+			}
 			
 		}
 		
 	}
 	
-	public TreeSet<TodoTask> getTodoTasks() {
+	public static TreeSet<TodoTask> getTodoTasks() {
 		return _todoTasks;
 	}
 
-	public TreeSet<EventTask> getEventTasks() {
+	public static TreeSet<EventTask> getEventTasks() {
 		return _eventTasks;
 	}
 
-	public TreeSet<DeadlineTask> getDeadlineTasks() {
+	public static TreeSet<DeadlineTask> getDeadlineTasks() {
 		return _deadlineTasks;
 	}
 
-	public TreeSet<TodoTask> getCompTodoTasks() {
+	public static TreeSet<TodoTask> getCompTodoTasks() {
 		return _compTodoTasks;
 	}
 
-	public TreeSet<EventTask> getCompEventTasks() {
+	public static TreeSet<EventTask> getCompEventTasks() {
 		return _compEventTasks;
 	}
 
-	public TreeSet<DeadlineTask> getCompDeadlineTasks() {
+	public static TreeSet<DeadlineTask> getCompDeadlineTasks() {
 		return _compDeadlineTasks;
 	}
 	
