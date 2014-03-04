@@ -11,6 +11,7 @@ package sg.edu.nus.cs2103t.mina.controller;
  */
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -28,6 +29,8 @@ public class TaskFilterManager {
 	public static final String DEADLINE = "deadline";
 	public static final String TODO = "todo";
 	public static final String EVENT = "event";
+
+	public static final String COMPLETE = "complete";
 
 	public TaskFilterManager(TaskDataManager taskStore) {
 		_taskStore = taskStore;
@@ -67,8 +70,40 @@ public class TaskFilterManager {
 		if (filters.contains(EVENT)) {
 			result.addAll(getEvents());
 		}
+		
+		if (filters.contains(COMPLETE)) {
+			result.addAll(getCompletedTasks());
+		}
 
 		return result;
+	}
+
+	private ArrayList<Task<?>> getCompletedTasks() {
+			
+		ArrayList<Task<?>> tasks = new ArrayList<Task<?>>();
+		
+		TreeSet<TodoTask> todos = _taskStore.getCompTodoTasks();
+		Iterator<TodoTask> todoIter = todos.iterator();
+		
+		TreeSet<EventTask> events = _taskStore.getCompEventTasks();
+		Iterator<EventTask> eventIter = events.iterator();
+		
+		TreeSet<DeadlineTask> deadlines = _taskStore.getCompDeadlineTasks();
+		Iterator<DeadlineTask> deadlineIter = deadlines.iterator();
+		
+		while (todoIter.hasNext()) {
+			tasks.add(todoIter.next());
+		}
+		
+		while (eventIter.hasNext()) {
+			tasks.add(eventIter.next());
+		}
+		
+		while (deadlineIter.hasNext()) {
+			tasks.add(deadlineIter.next());
+		}
+		
+		return tasks;
 	}
 
 	public ArrayList<Task<?>> getAllUncompletedTasks() {
@@ -80,11 +115,12 @@ public class TaskFilterManager {
 		result.addAll(getDeadlines());
 
 		return result;
-	}
-
+	} 
+	
 	private ArrayList<TodoTask> getTodos() {
 		// TODO clarify getAllTask from Joanne. For now, just use
 		// stub methods.
+		// Waiting for TreeMap edition.
 		TreeSet<TodoTask> todoSet = _taskStore.getTodoTasks();
 		Iterator<TodoTask> todoIter = todoSet.iterator();
 
@@ -99,6 +135,7 @@ public class TaskFilterManager {
 	private ArrayList<EventTask> getEvents() {
 		// TODO clarify getAllTask from Joanne. For now, just use
 		// stub methods.
+		// Waiting for TreeMap edition.
 		TreeSet<EventTask> eventSet = _taskStore.getEventTasks();
 		Iterator<EventTask> eventIter = eventSet.iterator();
 

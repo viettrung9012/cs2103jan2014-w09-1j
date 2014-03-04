@@ -2,6 +2,7 @@ package sg.edu.cs2103t.mina.stub;
 
 import java.util.Date;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import sg.edu.nus.cs2103t.mina.controller.TaskDataManager;
@@ -9,25 +10,41 @@ import sg.edu.nus.cs2103t.mina.model.*;
 
 public class TaskDataManagerStub extends TaskDataManager{
 	
-	private static TreeSet<TodoTask> _todoTasks;
-	private static TreeSet<EventTask> _eventTasks;
-	private static TreeSet<DeadlineTask> _deadlineTasks;
+	/*private TreeMap<String, TodoTask> _todoTasks;
+	private TreeMap<String, EventTask> _eventTasks;
+	private TreeMap<String, DeadlineTask> _deadlineTasks;
 	
-	private static TreeSet<TodoTask> _compTodoTasks;
-	private static TreeSet<EventTask> _compEventTasks;
-	private static TreeSet<DeadlineTask> _compDeadlineTasks;
+	private TreeMap<String, TodoTask> _compTodoTasks;
+	private TreeMap<String, EventTask> _compEventTasks;
+	private TreeMap<String, DeadlineTask> _compDeadlineTasks;*/
+
+	private TreeSet<TodoTask> _todoTasks;
+	private TreeSet<EventTask> _eventTasks;
+	private TreeSet<DeadlineTask> _deadlineTasks;
+	
+	private TreeSet<TodoTask> _compTodoTasks;
+	private TreeSet<EventTask> _compEventTasks;
+	private TreeSet<DeadlineTask> _compDeadlineTasks;
 	
 	public TaskDataManagerStub(){
 		
 		super();
 		
+		/*_todoTasks = new TreeMap<String, TodoTask>();
+		_eventTasks = new TreeMap<String, EventTask>();
+		_deadlineTasks = new TreeMap<String, DeadlineTask>();
+		
+		_compTodoTasks= new TreeMap<String, TodoTask>();
+		_compEventTasks = new TreeMap<String, EventTask>();
+		_compDeadlineTasks = new TreeMap<String, DeadlineTask>();*/
+
 		_todoTasks = getTodoTasks();
 		_eventTasks = getEventTasks();
 		_deadlineTasks = getDeadlineTasks();
 		
-		_compTodoTasks= new TreeSet<TodoTask>();
-		_compEventTasks = new TreeSet<EventTask>();
-		_compDeadlineTasks = new TreeSet<DeadlineTask>();
+		_compTodoTasks= getCompTodoTasks();
+		_compEventTasks = getCompEventTasks();
+		_compDeadlineTasks = getCompDeadlineTasks();
 		
 		char[] roulette = {'L', 'M', 'H'};
 		
@@ -41,8 +58,10 @@ public class TaskDataManagerStub extends TaskDataManager{
 																					roulette[i%3]);
 			if(i%5==0){
 				newTodoTask.setCompleted(true);
+				//_compTodoTasks.put(newTodoTask.getId(), newTodoTask);
 				_compTodoTasks.add(newTodoTask);
 			} else {
+				//_todoTasks.put(newTodoTask.getId(), newTodoTask);
 				_todoTasks.add(newTodoTask);
 			}
 			
@@ -63,9 +82,11 @@ public class TaskDataManagerStub extends TaskDataManager{
 				newEventTask.setEndTime(pastEnd);
 				
 				newEventTask.setCompleted(true);
+				//_compEventTasks.put(newEventTask.getId(), newEventTask);
 				_compEventTasks.add(newEventTask);
 				
 			} else {
+				//_eventTasks.put(newEventTask.getId(), newEventTask);
 				_eventTasks.add(newEventTask);
 			}			
 			
@@ -80,8 +101,10 @@ public class TaskDataManagerStub extends TaskDataManager{
 				Date pastEnd = new Date((new Date()).getTime() - time);
 				newDeadline.setEndTime(pastEnd);
 				newDeadline.setCompleted(true);
+				//_compDeadlineTasks.put(newDeadline.getId(), newDeadline);
 				_compDeadlineTasks.add(newDeadline);
 			} else {
+				//_deadlineTasks.put(newDeadline.getId(), newDeadline);
 				_deadlineTasks.add(newDeadline);
 			}
 			
@@ -89,16 +112,28 @@ public class TaskDataManagerStub extends TaskDataManager{
 		
 	}
 
-	public static TreeSet<TodoTask> getCompTodoTasks() {
+	/*public TreeMap<String, TodoTask> getTodoTasksTemp() {
+		return _todoTasks;
+	}
+
+	public TreeMap<String, EventTask> getEventTasksTemp() {
+		return _eventTasks;
+	}
+
+	public TreeMap<String, DeadlineTask> getDeadlineTasksTemp() {
+		return _deadlineTasks;
+	}
+
+	public TreeMap<String, TodoTask> getCompTodoTasks() {
 		return _compTodoTasks;
 	}
 
-	public static TreeSet<EventTask> getCompEventTasks() {
+	public TreeMap<String, EventTask> getCompEventTasks() {
 		return _compEventTasks;
 	}
 
-	public static TreeSet<DeadlineTask> getCompDeadlineTasks() {
+	public TreeMap<String, DeadlineTask> getCompDeadlineTasks() {
 		return _compDeadlineTasks;
-	}
+	}*/
 	
 }
