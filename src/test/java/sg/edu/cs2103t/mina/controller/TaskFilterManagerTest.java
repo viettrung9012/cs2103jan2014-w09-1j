@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +23,7 @@ import sg.edu.nus.cs2103t.mina.model.parameter.FilterParameter;
 public class TaskFilterManagerTest {
 
 	private static final String FILTER_COMPLETE = "complete";
+	private static final String FILTER_COMPLETE_PLUS = "+complete";
 	
 	private TaskDataManagerStub tdmStub = new TaskDataManagerStub();
 	private TaskFilterManager tfmTest = new TaskFilterManager(tdmStub);
@@ -160,10 +162,50 @@ public class TaskFilterManagerTest {
 	 * Expected: Everything including completed tasks
 	 */
 	@Test
-	public void testCompletedPlus() {
+	public void testCompletePlus() {
+		ArrayList<Task<?>> test = getResult(FILTER_COMPLETE_PLUS);
+		boolean hasEverything = checkEverything(test);
+		assertTrue("Need everything!", hasEverything);
+	}
+
+	private boolean checkEverything(ArrayList<Task<?>> test) {
 		
+		SortedSet<TodoTask> todos = tdmStub.getTodoTasks();
+		SortedSet<TodoTask> todosComp = tdmStub.getCompTodoTasks();
 		
+		SortedSet<EventTask> events = tdmStub.getEventTasks();
+		SortedSet<EventTask> eventsComp = tdmStub.getCompEventTasks();
 		
+		SortedSet<DeadlineTask> deadlines = tdmStub.getDeadlineTasks();
+		SortedSet<DeadlineTask> deadlinesComp = tdmStub.getCompDeadlineTasks();
+		
+		int totalTaskSize = deadlinesComp.size() +
+												eventsComp.size() + 
+				 								todosComp.size() +
+				 								todos.size() + 
+				 								events.size() + 
+				 								deadlines.size();
+		
+		for (Task<?> task: test) {
+			
+			if (task instanceof DeadlineTask && 
+					!(deadlinesComp.contains(task) || deadlines.contains(task)) ) {
+				return false;
+			}
+			
+			if (task instanceof TodoTask && 
+					!(todosComp.contains(task) || todos.contains(task)) ) {
+				return false;
+			}
+			
+			if (task instanceof EventTask && 
+					!(eventsComp.contains(task) || events.contains(task)) ) {
+				return false;
+			}
+			
+		}
+		
+		return totalTaskSize==test.size();
 	}
 
 	private boolean hasCompletedTasks(ArrayList<Task<?>> test,

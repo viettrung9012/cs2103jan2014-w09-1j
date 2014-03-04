@@ -29,8 +29,8 @@ public class TaskFilterManager {
 	public static final String DEADLINE = "deadline";
 	public static final String TODO = "todo";
 	public static final String EVENT = "event";
-
 	public static final String COMPLETE = "complete";
+	public static final String COMPLETE_PLUS = "+complete";
 
 	public TaskFilterManager(TaskDataManager taskStore) {
 		_taskStore = taskStore;
@@ -74,7 +74,12 @@ public class TaskFilterManager {
 		if (filters.contains(COMPLETE)) {
 			result.addAll(getCompletedTasks());
 		}
-
+		
+		if (filters.contains(COMPLETE_PLUS)) {
+			result.addAll(getCompletedTasks());
+			result.addAll(getAllUncompletedTasks());
+		}
+		
 		return result;
 	}
 
