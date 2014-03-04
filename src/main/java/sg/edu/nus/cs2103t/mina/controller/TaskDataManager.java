@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TreeSet;
 
+import sg.edu.nus.cs2103t.mina.model.DataParameter;
 import sg.edu.nus.cs2103t.mina.model.DeadlineTask;
 import sg.edu.nus.cs2103t.mina.model.EventTask;
 import sg.edu.nus.cs2103t.mina.model.Task;
@@ -22,7 +23,8 @@ import sg.edu.nus.cs2103t.mina.model.TodoTask;
  * @author joannemah
  */
 public class TaskDataManager {
-
+	
+	
     // error messages
     public static final int ERROR_MISSING_TASK_DESCRIPTION = -2;
 
@@ -32,22 +34,30 @@ public class TaskDataManager {
     private TreeSet<TodoTask> _todoTreeSet = new TreeSet<TodoTask>();
     private TreeSet<DeadlineTask> _deadlineTreeSet = new TreeSet<DeadlineTask>();
     private TreeSet<EventTask> _eventTreeSet = new TreeSet<EventTask>();
+    private TreeSet<TodoTask> _completedTodoTreeSet = new TreeSet<TodoTask>();
+    private TreeSet<DeadlineTask> _completedDeadlineTreeSet = new TreeSet<DeadlineTask>();
+    private TreeSet<EventTask> _completedEventTreeSet = new TreeSet<EventTask>();
 
     public TaskDataManager() {
         // empty constructor class
     }
-
-    public TreeSet<TodoTask> getTodoTasks() {
+    
+    /** get methods */
+    public TreeSet<TodoTask> getAllTodoTasks() {
         return _todoTreeSet;
     }
 
-    public TreeSet<DeadlineTask> getDeadlineTasks() {
+    public TreeSet<DeadlineTask> getAllDeadlineTasks() {
         return _deadlineTreeSet;
     }
 
-    public TreeSet<EventTask> getEventTasks() {
+    public TreeSet<EventTask> getAllEventTasks() {
         return _eventTreeSet;
     }
+    
+    // TaskDataManager.addTask(addParameter);
+ 	// TaskDataManager.deleteTask(deleteparams);
+ 	// TaskDataManager.editTask(addparams);
 
     /**
      * This method creates a Task depending on its type and parameters. If
@@ -57,145 +67,56 @@ public class TaskDataManager {
      * @param String addParameters
      * @return
      */
-    public Task<?> addTask(String addParameters) {
-        switch (determineTaskType(addParameters)) {
+    public Task<?> addTask(DataParameter addParameters) {
+        switch (addParameters.getOriginalTaskType()) {
             case TODO:
-                TodoTask newTodoTask = createTodoTask(addParameters);
-                if (_todoTreeSet.add(newTodoTask)) {
-                    return newTodoTask;
-                }
-                break;
+            	TodoTask addedTodoTask = addTodoTask(addParameters);
+            	return addedTodoTask;
             case DEADLINE:
-                DeadlineTask newDeadlineTask = createDeadlineTask(addParameters);
-                if (_deadlineTreeSet.add(newDeadlineTask)) {
-                    return newDeadlineTask;
-                }
-                break;
+                DeadlineTask addedDeadlineTask = addDeadlineTask(addParameters);
+                return addedDeadlineTask;
             case EVENT:
-                EventTask newEventTask = createEventTask(addParameters);
-                if (_eventTreeSet.add(newEventTask)) {
-                    return newEventTask;
-                }
-                break;
+                EventTask addedEventTask = addEventTask(addParameters);
+                return addedEventTask;
             default:
-                break;
-        }
-        return null;
-    }
-
-    // TODO: change to private afterwards
-    // does not check for null parameters, this will be checked at addTask()
-    public TaskType determineTaskType(String addParameters) {
-        if (addParameters.equals("")) {
-            return TaskType.UNKOWN;
-        }
-
-        if (addParameters.contains("-end")) {
-            if (addParameters.contains("-start")) {
-                return TaskType.EVENT;
-            } else {
-                return TaskType.DEADLINE;
-            }
-        } else {
-            return TaskType.TODO;
+                return null;
         }
     }
 
-    public TodoTask createTodoTask(String addParameters) {
-        TodoTask newTodo = null;
+	private TodoTask addTodoTask(DataParameter addParameters) {
+		TodoTask newTodoTask = new TodoTask(addParameters.getDescription(),
+				addParameters.getPriority());
 
-        if (!addParameters.contains("-priority")) {
-            newTodo = new TodoTask(addParameters);
+		if (_todoTreeSet.add(newTodoTask)) {
+			return newTodoTask;
+		}
 
-        } else {
-            String[] parameters = addParameters.split("-priority");
-            char[] priority = parameters[1].trim().toCharArray();
+		return null;
+	}
+	
+	private DeadlineTask addDeadlineTask(DataParameter addParameters) {
+		DeadlineTask newDeadlineTask = new DeadlineTask(
+				addParameters.getDescription(), addParameters.getEnd(),
+				addParameters.getPriority());
 
-            // TODO: check > 1 instances of "-priority"
-            // TODO: check valid value for priority
+		if (_deadlineTreeSet.add(newDeadlineTask)) {
+			return newDeadlineTask;
+		}
 
-            newTodo = new TodoTask(parameters[PARAM_TASK_DESCRIPTION].trim(),
-                    priority[0]);
-        }
+		return null;
+	}
+	
+	private EventTask addEventTask(DataParameter addParameters) {
+		EventTask newEventTask = new EventTask(addParameters.getDescription(),
+				addParameters.getStart(), addParameters.getEnd(),
+				addParameters.getPriority());
 
-        return newTodo;
-    }
+		if (_eventTreeSet.add(newEventTask)) {
+			return newEventTask;
+		}
 
-    public DeadlineTask createDeadlineTask(String addParameters) {
-        String[] parameters = addParameters.split("-end|-priority");
-        String description = parameters[PARAM_TASK_DESCRIPTION].trim();
-        String endTimeString = parameters[1].trim();
-
-        // TODO: use this method to accept and check for different formats
-        SimpleDateFormat slashFormatter = new SimpleDateFormat(
-                "dd/MM/yyyy HH:mm:ss");
-        Date endTime;
-        try {
-            endTime = slashFormatter.parse(endTimeString + " 23:59:00"); // default,
-                                                                         // deadline
-                                                                         // submission
-                                                                         // 2359
-            if (parameters.length == 2) {
-                return new DeadlineTask(description, endTime);
-            } else {
-                char[] priority = parameters[2].trim().toCharArray();
-
-                return new DeadlineTask(description, endTime, priority[0]);
-            }
-
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public EventTask createEventTask(String addParameters) {
-        // handle parameters
-        String[] parameters = addParameters.split("-start|-end|-priority");
-
-        String description = parameters[PARAM_TASK_DESCRIPTION].trim();
-
-        String startTimeString = parameters[1].trim();
-        String endTimeString = parameters[2].trim();
-
-        // handle date formats
-        if (startTimeString.contains(" ") && !endTimeString.contains(" ")) {
-            String[] startTimeParam = startTimeString.split(" ");
-            endTimeString = startTimeParam[0] + " " + endTimeString;
-        }
-
-        Date startTime, endTime;
-
-        // TODO: use this method to accept and check for different formats
-        SimpleDateFormat slashFormatter = new SimpleDateFormat(
-                "dd/MM/yyyy HHmm");
-
-        try {
-            startTime = slashFormatter.parse(startTimeString);
-            endTime = slashFormatter.parse(endTimeString);
-
-            // actual creation of events
-            if (parameters.length == 3) {
-                return new EventTask(description, startTime, endTime);
-            } else {
-                char[] priority = parameters[3].trim().toCharArray();
-
-                return new EventTask(description, startTime, endTime,
-                        priority[0]);
-            }
-
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    // TODO: add a method that checks if priority is valid
-    // TODO: add a method that converts any form of a date to a Date
+		return null;
+	}
 
     /**
      * This method deletes a specific task by identifying the Task with its type
