@@ -197,16 +197,17 @@ public class TaskDataManagerTest {
                         currDateMilliSec), TaskType.TODO, TaskType.EVENT, 1)));
         assertEquals(0, tdmTest.getAllTodoTasks().size());
         assertEquals(1, tdmTest.getAllEventTasks().size());
-
+        
+        tdmTest.resetTrees();
         tdmTest.addTask(new DataParameter("Deadline task becomes a TodoTask.",
                 'M', null, new Date(currDateMilliSec), null, TaskType.DEADLINE,
                 123));
         assertEquals("Modify deadline to to-do.", new TodoTask(
-                "Deadline task becomes a TodoTask."),
+                "Deadline task becomes a TodoTask. by " + new Date(currDateMilliSec)),
                 tdmTest.modifyTask(new DataParameter(null, 'M', null, null,
                         TaskType.DEADLINE, TaskType.TODO, 1)));
         assertEquals(1, tdmTest.getAllTodoTasks().size());
-        assertEquals(1, tdmTest.getAllDeadlineTasks().size());
+        assertEquals(0, tdmTest.getAllDeadlineTasks().size());
         
         //TODO: deadline->event, event->To-do, event->deadline 
         

@@ -68,22 +68,23 @@ public class DataParameter {
      * parameters. Caution: overrides any existing data if they existed.
      */
     public void loadOldTask(Task<?> taskToLoad) {
-		setDescription(taskToLoad.getDescription());
-		setPriority(taskToLoad.getPriority());
-		//setTaskID(taskToLoad.getId());
-		//TODO find a way to map the UUID for _id in task to a human readable ID value
-		setOriginalTaskType(taskToLoad.getType());
-		
-		if(taskToLoad.getType() == TaskType.DEADLINE) {
-		    DeadlineTask taskToLoadDeadline = (DeadlineTask) taskToLoad;
-		    setEndDate(taskToLoadDeadline.getEndTime());
-		}
-		if(taskToLoad.getType() == TaskType.EVENT) {
-		    EventTask taskToLoadEvent = (EventTask) taskToLoad;
-		    setEndDate(taskToLoadEvent.getEndTime());
+        setDescription(taskToLoad.getDescription());
+        setPriority(taskToLoad.getPriority());
+        // setTaskID(taskToLoad.getId());
+        // TODO find a way to map the UUID for _id in task to a human readable
+        // ID value
+        setOriginalTaskType(taskToLoad.getType());
+
+        if (taskToLoad.getType() == TaskType.DEADLINE) {
+            DeadlineTask taskToLoadDeadline = (DeadlineTask) taskToLoad;
+            setEndDate(taskToLoadDeadline.getEndTime());
+        }
+        if (taskToLoad.getType() == TaskType.EVENT) {
+            EventTask taskToLoadEvent = (EventTask) taskToLoad;
+            setEndDate(taskToLoadEvent.getEndTime());
             setStartDate(taskToLoadEvent.getStartTime());
-		}
-	}
+        }
+    }
 
     /**
      * For the modify function. Call this function after you call
@@ -108,12 +109,32 @@ public class DataParameter {
         } else {
             // there is an error, do something!!
         }
+        if (modifyParam.getNewTaskType() != null) {
+            setNewTaskType(modifyParam.getNewTaskType());
+        } else {
+            // there is an error, do something!!
+        }
         if (modifyParam.getTaskId() != -1) {
             setTaskID(modifyParam.getTaskId());
         }
+        if (_originalTaskType != _newTaskType) {
+            if (_originalTaskType == TaskType.DEADLINE && _newTaskType == TaskType.TODO) {
+                _description += (" by " + _end);
+                _end = null;
+            } else if (_originalTaskType == TaskType.EVENT && _newTaskType == TaskType.TODO) {
+                _description += (" to " + _end);
+                _end = null;
+            } else if (_originalTaskType == TaskType.EVENT && _newTaskType == TaskType.TODO){
+                _description += ( " from " + _start + " to " + _end);
+                _start = null;
+                _end = null;
+            } else if (_originalTaskType == TaskType.EVENT && _newTaskType == TaskType.DEADLINE) {
+                _end = _start;
+                _start = null;
+            }
 
-        // deduce the new task type from the existing parameters
-        setNewTaskType(this.determineTaskType());
+            _originalTaskType = _newTaskType;
+        }
     }
 
     @Override
