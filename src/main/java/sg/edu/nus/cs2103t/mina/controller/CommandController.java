@@ -30,7 +30,7 @@ public class CommandController {
     private static final String DELETED_MESSAGE = "%1$s task %2$s has been deleted.\r\n";
     private static final String DELETE_ERROR_MESSAGE = "Error occured whe system try to delete task.\r\n";
     private static final String MODIFIED_MESSAGE = "Modified. %1$s task %2$s.\r\n";
-    private static final String MODIFY_ERROR_MESSAGE = "Error occured whe system try to modify task.\r\n";
+    private static final String MODIFY_ERROR_MESSAGE = "Error occured when system try to modify task.\r\n";
     private static final String COMPLETED_MESSAGE = "%1$s task %2$s has been makred as completed.\r\n";
     private static final String COMPLETE_ERROR_MESSAGE = "Error occured whe system try to mark task as completed.\r\n";
     private static final String SEARCH_NOT_FOUND = "Search cannot find any result.\r\n";

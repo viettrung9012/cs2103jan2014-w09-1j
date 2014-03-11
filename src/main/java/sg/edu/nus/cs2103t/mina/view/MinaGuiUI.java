@@ -3,6 +3,7 @@ package sg.edu.nus.cs2103t.mina.view;
 import java.util.SortedSet;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Rectangle;
@@ -26,11 +27,15 @@ public class MinaGuiUI implements MinaView {
     private Display _display;
     private Text _userInputTextField;
     private Label _statusBar;
-    private org.eclipse.swt.widgets.List _eventListUI;
-    private org.eclipse.swt.widgets.List _deadlineListUI;
-    private org.eclipse.swt.widgets.List _todoListUI;
+    private StyledText _eventListUI;
+    private StyledText _deadlineListUI;
+    private StyledText _todoListUI;
 
     private String _userCommand;
+    
+    private static final String ERROR = "Operation failed. Please try again.";
+    private static final String INVALID_COMMAND = "Invalid command. Please re-enter.";
+    private static final String SUCCESS = "Operation completed";
 
     public MinaGuiUI() {
         super();
@@ -102,7 +107,7 @@ public class MinaGuiUI implements MinaView {
         lblTodo.setBounds(722, 4, 354, 36);
         lblTodo.setText("To-do(td)");
 
-        _eventListUI = new org.eclipse.swt.widgets.List(_shell, SWT.NONE);
+        _eventListUI = new StyledText(_shell, SWT.NONE | SWT.WRAP);
         _eventListUI
                 .setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
         _eventListUI.setFont(SWTResourceManager.getFont("Comic Sans MS", 15,
@@ -112,7 +117,7 @@ public class MinaGuiUI implements MinaView {
         _eventListUI.setBounds(4, 40, 354, 496);
         _eventListUI.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-        _deadlineListUI = new org.eclipse.swt.widgets.List(_shell, SWT.NONE);
+        _deadlineListUI = new StyledText(_shell, SWT.NONE | SWT.WRAP);
         _deadlineListUI.setForeground(SWTResourceManager
                 .getColor(SWT.COLOR_WHITE));
         _deadlineListUI.setFont(SWTResourceManager.getFont("Comic Sans MS", 15,
@@ -122,7 +127,7 @@ public class MinaGuiUI implements MinaView {
         _deadlineListUI.setBounds(362, 40, 356, 496);
         _deadlineListUI.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-        _todoListUI = new org.eclipse.swt.widgets.List(_shell, SWT.NONE);
+        _todoListUI = new StyledText(_shell, SWT.NONE | SWT.WRAP);
         _todoListUI.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
         _todoListUI.setFont(SWTResourceManager.getFont("Comic Sans MS", 15,
                 SWT.NORMAL));
@@ -162,14 +167,22 @@ public class MinaGuiUI implements MinaView {
     public void displayOutput(String message) {
         final String outputMessage = message;
         _display.asyncExec(new Runnable() {
-
             @Override
             public void run() {
-                _statusBar.setText(outputMessage);
                 if (outputMessage.contains("Error")||outputMessage.contains("invalid")){
                 	_statusBar.setBackground(SWTResourceManager.getColor(SWT.COLOR_RED));
+                	if (outputMessage.contains("Error")){
+                        _statusBar.setText(ERROR);
+                	} else {
+                		_statusBar.setText(INVALID_COMMAND);
+                	}
                 } else {
                 	_statusBar.setBackground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
+                	if (outputMessage.contains("welcome")){
+                		_statusBar.setText(outputMessage);
+                	} else {
+                		_statusBar.setText(SUCCESS);
+                	}
                 }
             }
         });
@@ -179,17 +192,25 @@ public class MinaGuiUI implements MinaView {
     public void updateLists(SortedSet<EventTask> allEventTasks,
             SortedSet<DeadlineTask> allDeadlineTasks,
             SortedSet<TodoTask> allTodoTasks) {
-        _eventListUI.removeAll();
+    	int startEvent = 1;
+    	int startTodo = 1;
+    	int startDeadline = 1;
+        _eventListUI.setText(EMPTY_STRING);
         for (EventTask event : allEventTasks) {
-            _eventListUI.add(event.toString());
+            _eventListUI.append(startEvent+". "+event.getDescription()
+            		+" from "+event.getStartTime()+" to "+event.getEndTime()+"\n");
+            startEvent++;
         }
-        _deadlineListUI.removeAll();
+        _deadlineListUI.setText(EMPTY_STRING);
         for (DeadlineTask deadline : allDeadlineTasks) {
-            _deadlineListUI.add(deadline.toString());
+            _deadlineListUI.append(startDeadline+". "+deadline.getDescription()
+            		+" by "+deadline.getEndTime()+"\n");
+            startDeadline++;
         }
-        _todoListUI.removeAll();
+        _todoListUI.setText(EMPTY_STRING);
         for (TodoTask todo : allTodoTasks) {
-            _todoListUI.add(todo.toString());
+            _todoListUI.append(startTodo+". "+todo.getDescription()+"\n");
+            startTodo++;
         }
 
     }
