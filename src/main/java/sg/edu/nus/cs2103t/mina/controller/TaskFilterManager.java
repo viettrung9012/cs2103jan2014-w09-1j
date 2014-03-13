@@ -30,21 +30,19 @@ import sg.edu.nus.cs2103t.mina.model.parameter.SearchParameter;
 public class TaskFilterManager {
 
 	private static final boolean IS_END = false;
-
     private static final boolean IS_START = true;
-
     private static final int FIRST_LETTER = 0;
-	
+    
 	public static final int ONE_SECOND = 1000;
 	public static final int ONE_MINUTE = ONE_SECOND * 60;
     public static final int ONE_HOUR = ONE_MINUTE * 60;
     public static final int ONE_DAY = ONE_HOUR * 24;
     
-    public static final int HOUR = 0;
-    public static final int MIN = 0;
-    public static final int SEC = 0;
-    public static final int START_TIME[] = {23, 59, 59};
-    public static final int END_TIME[] = {0,0,0};
+    private static final int HOUR = 0;
+    private static final int MIN = 0;
+    private static final int SEC = 0;
+    private static final int START_TIME[] = {23, 59, 59};
+    private static final int END_TIME[] = {0,0,0};
     
 	private TaskDataManager _taskStore;
 
@@ -351,49 +349,6 @@ public class TaskFilterManager {
 		}
 		
 		return false;
-	}
-
-	private boolean hasKeyword(String description, String keyword) {
-		
-		String[] tokens = sanitiseTokens(description);
-		
-		for (int i=0; i<tokens.length; i++) {
-			if(tokens[i].equalsIgnoreCase(keyword)) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	/**
-	 * Tokenise and strip any leading punctuation or whitespace.
-	 * @param description
-	 * @return
-	 */
-	private String[] sanitiseTokens(String description) {
-		
-		String[] rawTokens = description.split(" ");
-		ArrayList<String> tokens = new ArrayList<String>();
-		
-		for (int i=0; i<rawTokens.length; i++) {
-			int lastLetter = rawTokens.length - 1;
-			rawTokens[i] = rawTokens[i].trim();
-			if(rawTokens[i].equals("")) {
-				continue;
-			}
-			
-			Character first = rawTokens[i].charAt(FIRST_LETTER);
-			Character last = rawTokens[i].charAt(lastLetter);
-			
-			if(!Character.isLetterOrDigit(first)) {
-				rawTokens[i] = rawTokens[i].substring(FIRST_LETTER + 1);
-				
-			}
-			
-		}
-		
-		return rawTokens;
 	}
 
 }

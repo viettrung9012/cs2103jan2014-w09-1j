@@ -33,7 +33,7 @@ public class FilterParameter {
 							Date end,
 							boolean hasTime) {
 		
-		_filters = getFilters(newFilters);
+		_filters = getFilterTypes(newFilters);
 		setStart(start);
 		setEnd(end);
 		_hasTime = hasTime;
@@ -49,7 +49,7 @@ public class FilterParameter {
 	 * @param filters
 	 * @return Arraylist of FilterType
 	 */
-	private ArrayList<FilterType> getFilters(ArrayList<String> rawFilters) {
+	private ArrayList<FilterType> getFilterTypes(ArrayList<String> rawFilters) {
 		
 		// TODO Discuss with the team about this.
 		ArrayList<FilterType> filters = new ArrayList<FilterType>();
