@@ -48,8 +48,9 @@ public class DataParameter {
         setDescription(taskObj.getDescription());
         setPriority(taskObj.getPriority());
         setOriginalTaskType(taskObj.getType());
-        setNewTaskType(null);
+        setNewTaskType(taskObj.getType());
         //setTaskID(taskObj.getId());
+        setTaskObject(taskObj);
         
         if (taskObj.getType() == TaskType.DEADLINE) {
             DeadlineTask deadlineTaskObj = (DeadlineTask) taskObj;
@@ -62,6 +63,32 @@ public class DataParameter {
             
             setEndDate(eventTaskObj.getEndTime());
             setStartDate(eventTaskObj.getStartTime());
+        }
+    }
+    
+    public DataParameter(String des, char pri, Date start, Date end,
+            TaskType origType, TaskType newType, int id, Task<?> taskObj) {
+        setDescription(des);
+        setPriority(pri);
+        setStartDate(start);
+        setEndDate(end);
+        setOriginalTaskType(origType);
+        setNewTaskType(newType);
+        setTaskID(id);
+
+        setTaskObject(taskObj);
+
+        if (taskObj.getType() == TaskType.DEADLINE) {
+            DeadlineTask deadlineTaskObj = (DeadlineTask) taskObj;
+            
+            setEndDate(end == null ? deadlineTaskObj.getEndTime() : end);
+        }
+
+        if (taskObj.getType() == TaskType.EVENT) {
+            EventTask eventTaskObj = (EventTask) taskObj;
+
+            setEndDate(end == null ? eventTaskObj.getEndTime() : end);
+            setStartDate(start == null ? eventTaskObj.getStartTime() : start);
         }
     }
 
@@ -141,6 +168,7 @@ public class DataParameter {
         if (modifyParam.getTaskId() != -1) {
             setTaskID(modifyParam.getTaskId());
         }
+        
         if (_originalTaskType != _newTaskType) {
             if (_originalTaskType == TaskType.DEADLINE && _newTaskType == TaskType.TODO) {
                 _description += (" by " + _end);
