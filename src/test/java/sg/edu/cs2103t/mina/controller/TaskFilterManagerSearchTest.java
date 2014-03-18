@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +16,7 @@ import sg.edu.nus.cs2103t.mina.controller.TaskFilterManager;
 import sg.edu.nus.cs2103t.mina.model.DeadlineTask;
 import sg.edu.nus.cs2103t.mina.model.EventTask;
 import sg.edu.nus.cs2103t.mina.model.Task;
+import sg.edu.nus.cs2103t.mina.model.TaskType;
 import sg.edu.nus.cs2103t.mina.model.TodoTask;
 import sg.edu.nus.cs2103t.mina.model.parameter.SearchParameter;
 
@@ -24,7 +26,7 @@ public class TaskFilterManagerSearchTest {
     private TaskFilterManager tfmTest = new TaskFilterManager(tdmStub);
     private static Logger logger = LogManager
             .getLogger(TaskFilterManagerSearchTest.class.getName());
-	
+       
     @Test
     public void testEmptySearch() {
         // TODO Splitting by " " may have unintended effects,
@@ -163,7 +165,15 @@ public class TaskFilterManagerSearchTest {
         }
 
         searchParam = new SearchParameter(keywords);
-        return tfmTest.searchTasks(searchParam);
+        HashMap<TaskType, ArrayList<Task<?>>> resultMap = tfmTest.searchTasks(searchParam);
+        
+        ArrayList<Task<?>> result = new ArrayList<Task<?>>();
+        
+        for(TaskType type: resultMap.keySet()) {
+            result.addAll(resultMap.get(type));
+        }
+        
+        return result;
 
     }
 
