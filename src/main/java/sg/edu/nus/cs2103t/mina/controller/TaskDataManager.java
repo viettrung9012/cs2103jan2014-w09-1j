@@ -193,6 +193,7 @@ public class TaskDataManager {
      * @return Task<?> (if successful), null otherwise
      */
     public Task<?> deleteTask(DataParameter deleteParameters) {
+        
         switch (deleteParameters.getTaskObject().getType()) {
             case TODO :
                 if (_uncompletedTodoTasks.remove(deleteParameters

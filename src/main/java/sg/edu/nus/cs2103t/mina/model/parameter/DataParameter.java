@@ -48,8 +48,9 @@ public class DataParameter {
         setDescription(taskObj.getDescription());
         setPriority(taskObj.getPriority());
         setOriginalTaskType(taskObj.getType());
-        setNewTaskType(null);
+        setNewTaskType(taskObj.getType());
         //setTaskID(taskObj.getId());
+        setTaskObject(taskObj);
         
         if (taskObj.getType() == TaskType.DEADLINE) {
             DeadlineTask deadlineTaskObj = (DeadlineTask) taskObj;

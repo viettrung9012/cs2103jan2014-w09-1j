@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.Test;
 
 import sg.edu.nus.cs2103t.mina.controller.FileTaskDaoImplStub;
@@ -70,73 +69,71 @@ public class TaskDataManagerTest {
                 null, null, TaskType.TODO, 123)));
     }
 
-//    @Test
-//    public void testDeleteTask() {
-//        TaskDataManager tdmTest = new TaskDataManager();
-//        Long currDateMilliSec = System.currentTimeMillis();
-//
-//        tdmTest.addTask(new DataParameter("Sleep", 'H', null, null,
-//                TaskType.TODO, TaskType.TODO, 1));
-//        tdmTest.addTask(new DataParameter("Lie down", 'H', null, null,
-//                TaskType.TODO, TaskType.TODO, 2));
-//        tdmTest.addTask(new DataParameter("Bed...", 'H', null, null,
-//                TaskType.TODO, TaskType.TODO, 3));
-//
-//        tdmTest.addTask(new DataParameter("Sleep", 'H', null, new Date(
-//                currDateMilliSec), TaskType.DEADLINE, TaskType.DEADLINE, 123));
-//        tdmTest.addTask(new DataParameter("Lie down", 'H', null, new Date(
-//                currDateMilliSec), TaskType.DEADLINE, TaskType.DEADLINE, 123));
-//        tdmTest.addTask(new DataParameter("Bed...", 'H', null, new Date(
-//                currDateMilliSec), TaskType.DEADLINE, TaskType.DEADLINE, 123));
-//
-//        tdmTest.addTask(new DataParameter("Sleep", 'H', new Date(
-//                currDateMilliSec), new Date(currDateMilliSec), TaskType.EVENT,
-//                TaskType.EVENT, 123));
-//        tdmTest.addTask(new DataParameter("Lie down", 'H', new Date(
-//                currDateMilliSec), new Date(currDateMilliSec), TaskType.EVENT,
-//                TaskType.EVENT, 123));
-//        tdmTest.addTask(new DataParameter("Bed...", 'H', new Date(
-//                currDateMilliSec), new Date(currDateMilliSec), TaskType.EVENT,
-//                TaskType.EVENT, 123));
-//
-//        /* Basic Delete */
-//        assertEquals("Todo tasks.", new TodoTask("Lie down", 'H'),
-//                tdmTest.deleteTask(new DataParameter(null, 'M', null, null,
-//                        TaskType.TODO, null, 2)));
-//        assertEquals(2, tdmTest.getUncompletedTodoTasks().size());
-//
-//        assertEquals("Deadline tasks.", new DeadlineTask("Lie down", new Date(
-//                currDateMilliSec), 'H'), tdmTest.deleteTask(new DataParameter(
-//                null, 'M', null, null, TaskType.DEADLINE, null, 2)));
-//        assertEquals(2, tdmTest.getUncompletedDeadlineTasks().size());
-//
-//        assertEquals("Event tasks.", new EventTask("Lie down", new Date(
-//                currDateMilliSec), new Date(currDateMilliSec), 'H'),
-//                tdmTest.deleteTask(new DataParameter(null, 'M', null, null,
-//                        TaskType.EVENT, null, 2)));
-//        assertEquals(2, tdmTest.getUncompletedEventTasks().size());
-//
-//        /* Invalid Task Id */
-//        assertNull("Wrong task id will send back null",
-//                tdmTest.deleteTask(new DataParameter(null, 'M', null, null,
-//                        TaskType.TODO, null, 6)));
-//        assertNull("Wrong task id will send back null",
-//                tdmTest.deleteTask(new DataParameter(null, 'M', null, null,
-//                        TaskType.DEADLINE, null, 6)));
-//        assertNull("Wrong task id will send back null",
-//                tdmTest.deleteTask(new DataParameter(null, 'M', null, null,
-//                        TaskType.EVENT, null, 6)));
-//        assertNull("Wrong task id will send back null",
-//                tdmTest.deleteTask(new DataParameter(null, 'M', null, null,
-//                        TaskType.TODO, null, 0)));
-//        assertNull("Wrong task id will send back null",
-//                tdmTest.deleteTask(new DataParameter(null, 'M', null, null,
-//                        TaskType.TODO, null, 3)));
-//
-//        assertEquals(2, tdmTest.getUncompletedTodoTasks().size());
-//        assertEquals(2, tdmTest.getUncompletedDeadlineTasks().size());
-//        assertEquals(2, tdmTest.getUncompletedEventTasks().size());
-//    }
+    @Test
+    public void testDeleteTask() {
+        Map<TaskType, String> fileMap = new HashMap<TaskType, String>();
+        fileMap.put(TaskType.TODO, currDir + "test_mina_todo.compl");
+        fileMap.put(TaskType.DEADLINE, currDir + "test_mina_deadline.compl");
+        fileMap.put(TaskType.EVENT, currDir + "test_mina_event.compl");
+        
+        TaskDataManager tdmTest = new TaskDataManager(new FileTaskDaoImplStub(fileMap));
+        
+        Long currDateMilliSec = System.currentTimeMillis();
+
+        tdmTest.addTask(new DataParameter("Sleep", 'H', null, null,
+                TaskType.TODO, TaskType.TODO, 1));
+        
+        TodoTask testTodo1 = (TodoTask) tdmTest.addTask(new DataParameter(
+                "Lie down", 'H', null, null, TaskType.TODO, TaskType.TODO, 2));
+        TodoTask testTodo2 = (TodoTask) tdmTest.addTask(new DataParameter("Bed...", 'H',
+                null, null, TaskType.TODO, TaskType.TODO, 3));
+
+        DeadlineTask testDeadline1 = (DeadlineTask) tdmTest.addTask(new DataParameter("Sleep", 'H', null, new Date(
+                currDateMilliSec), TaskType.DEADLINE, TaskType.DEADLINE, 123));
+        DeadlineTask testDeadline2 = (DeadlineTask) tdmTest.addTask(new DataParameter("Lie down", 'H', null, new Date(
+                currDateMilliSec), TaskType.DEADLINE, TaskType.DEADLINE, 123));
+        tdmTest.addTask(new DataParameter("Bed...", 'H', null, new Date(
+                currDateMilliSec), TaskType.DEADLINE, TaskType.DEADLINE, 123));
+
+        EventTask testEvent1 = (EventTask) tdmTest.addTask(new DataParameter("Sleep", 'H', new Date(
+                currDateMilliSec), new Date(currDateMilliSec), TaskType.EVENT,
+                TaskType.EVENT, 123));
+        EventTask testEvent2 = (EventTask) tdmTest.addTask(new DataParameter("Lie down", 'H', new Date(
+                currDateMilliSec), new Date(currDateMilliSec), TaskType.EVENT,
+                TaskType.EVENT, 123));
+        tdmTest.addTask(new DataParameter("Bed...", 'H', new Date(
+                currDateMilliSec), new Date(currDateMilliSec), TaskType.EVENT,
+                TaskType.EVENT, 123));
+
+        /* Basic Delete */
+        assertEquals("Todo tasks.", testTodo1,
+                tdmTest.deleteTask(new DataParameter(testTodo1)));
+        assertEquals(2, tdmTest.getUncompletedTodoTasks().size());
+        
+        assertEquals("Todo tasks.", testTodo2,
+                tdmTest.deleteTask(new DataParameter(testTodo2)));
+        assertEquals(1, tdmTest.getUncompletedTodoTasks().size());
+
+        assertEquals("Deadline tasks.", testDeadline1,
+                tdmTest.deleteTask(new DataParameter(testDeadline1)));
+        assertEquals(2, tdmTest.getUncompletedDeadlineTasks().size());
+        assertEquals("Deadline tasks.", testDeadline2,
+                tdmTest.deleteTask(new DataParameter(testDeadline2)));
+        assertEquals(1, tdmTest.getUncompletedDeadlineTasks().size());
+
+        assertEquals("Event tasks.", testEvent1,
+                tdmTest.deleteTask(new DataParameter(testEvent1)));
+        assertEquals(2, tdmTest.getUncompletedEventTasks().size());
+        assertEquals("Event tasks.", testEvent2,
+                tdmTest.deleteTask(new DataParameter(testEvent2)));
+        assertEquals(1, tdmTest.getUncompletedEventTasks().size());
+        
+        /* missing delete */
+        assertNull(tdmTest.deleteTask(new DataParameter(testTodo2)));
+        assertNull(tdmTest.deleteTask(new DataParameter(testDeadline2)));
+        assertNull(tdmTest.deleteTask(new DataParameter(testEvent2)));
+
+    }
 
 //    @Test
 //    public void testModifyTask() {
