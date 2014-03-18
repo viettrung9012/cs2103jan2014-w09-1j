@@ -1,8 +1,6 @@
 package sg.edu.nus.cs2103t.mina.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -17,7 +15,6 @@ import sg.edu.nus.cs2103t.mina.model.Task;
 import sg.edu.nus.cs2103t.mina.model.TaskType;
 import sg.edu.nus.cs2103t.mina.model.TodoTask;
 import sg.edu.nus.cs2103t.mina.model.parameter.DataParameter;
-import sg.edu.nus.cs2103t.mina.model.parameter.SyncDataParameter;
 
 /**
  * Task data manager: checks user's input determines the type of tasks breaks up
@@ -50,7 +47,6 @@ public class TaskDataManager {
     private SortedSet<DeadlineTask> _completedDeadlineTasks;
 
     private FileTaskDaoImpl _daoStorage;
-    private List<SyncDataParameter> _syncList;
     
     public TaskDataManager() {
         initiateVariables();
@@ -63,7 +59,6 @@ public class TaskDataManager {
         _completedTodoTasks = new TreeSet<TodoTask>();
         _completedDeadlineTasks = new TreeSet<DeadlineTask>();
         _completedEventTasks = new TreeSet<EventTask>();
-        _syncList = new ArrayList<SyncDataParameter>(SYNC_LIST_MAX);
         _daoStorage = null;
     }
 
@@ -97,8 +92,7 @@ public class TaskDataManager {
             tempTasks = storage.loadTaskSet(TaskType.EVENT, true);
             _completedEventTasks = tempTasks == null ? new TreeSet<EventTask>()
                     : (SortedSet<EventTask>) tempTasks;
-
-            _syncList = new ArrayList<SyncDataParameter>(SYNC_LIST_MAX);
+            
         } catch (IllegalArgumentException e) {
             logger.error(e, e);
         } catch (IOException e) {
@@ -130,15 +124,6 @@ public class TaskDataManager {
 
     public SortedSet<EventTask> getCompletedEventTasks() {
         return _completedEventTasks;
-    }
-
-    /* synclists controls */
-    public List<SyncDataParameter> getSyncList() {
-        return _syncList;
-    }
-
-    public void clearSyncList() {
-        _syncList.clear();
     }
 
     /**
@@ -309,64 +294,60 @@ public class TaskDataManager {
 
     }
     
+    
     /* Sync Methods */
     private void syncUncompletedTasks(TaskType taskType) {
-        SyncDataParameter dataToSync;
         
-        switch (taskType) {
-            case TODO :
-                dataToSync = new SyncDataParameter(_uncompletedTodoTasks,
-                        taskType, false);
-                break;
-            case DEADLINE :
-                dataToSync = new SyncDataParameter(_uncompletedDeadlineTasks,
-                        taskType, false);
-                break;
-            case EVENT :
-                dataToSync = new SyncDataParameter(_uncompletedEventTasks,
-                        taskType, false);
-                break;
-            default :
-                System.out.println("Unable to determine task type.");
-                return;
+        try {
+            switch (taskType) {
+                case TODO :
+                    _daoStorage.saveTaskSet(_uncompletedTodoTasks, taskType, false);
+                    break;
+                case DEADLINE :
+                    _daoStorage.saveTaskSet(_uncompletedDeadlineTasks, taskType,
+                            false);
+                    break;
+                case EVENT :
+                    _daoStorage
+                            .saveTaskSet(_uncompletedEventTasks, taskType, false);
+                    break;
+                default :
+                    System.out.println("Unable to determine task type.");
+                    return;
+            }
+        } catch (IllegalArgumentException e) {
+            logger.error(e, e);
+        } catch (IOException e) {
+            logger.error(e, e);
         }
 
-        if (!_syncList.contains(dataToSync)) {
-            assert (_syncList.add(dataToSync));
-        }
-        //TODO: Interact with the stub from DAO
-    }
-        _daoStorage.updateChange(dataToSync);
         
-//        if (!_syncList.contains(dataToSync)) {
-//            assert (_syncList.add(dataToSync));
-//        }
-        //TODO: Interact with the stub from DAO
     }
     
     private void syncCompletedTasks(TaskType taskType) {
-        SyncDataParameter dataToSync;
-
-        switch (taskType) {
-            case TODO :
-                dataToSync = new SyncDataParameter(_completedTodoTasks,
-                        taskType, true);
-                break;
-            case DEADLINE :
-                dataToSync = new SyncDataParameter(_completedDeadlineTasks,
-                        taskType, true);
-                break;
-            case EVENT :
-                dataToSync = new SyncDataParameter(_completedEventTasks,
-                        taskType, true);
-                break;
-            default :
-                System.out.println("Unable to determine task type.");
-                return;
-        }
-
-        if (!_syncList.contains(dataToSync)) {
-            assert (_syncList.add(dataToSync));
+        
+        try {
+            switch (taskType) {
+                case TODO :
+                    _daoStorage.saveTaskSet(_completedTodoTasks,
+                            taskType, true);
+                    break;
+                case DEADLINE :
+                    _daoStorage.saveTaskSet(_completedDeadlineTasks,
+                            taskType, true);
+                    break;
+                case EVENT :
+                    _daoStorage.saveTaskSet(_completedEventTasks,
+                            taskType, true);
+                    break;
+                default :
+                    System.out.println("Unable to determine task type.");
+                    return;
+            }
+        } catch (IllegalArgumentException e) {
+            logger.error(e, e);
+        } catch (IOException e) {
+            logger.error(e, e);
         }
 
     }
