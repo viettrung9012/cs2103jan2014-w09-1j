@@ -167,4 +167,17 @@ public final class DateUtil {
         }
         return null; // Unknown format.
     }
+    
+    // Comparator
+    
+    /**
+     * Determine whether two Calendar instances are on the same date (time can be different)
+     * @param Calendar cal1, Calendar cal2
+     * @return boolean _isSameDate
+     */
+    public static boolean isSameDateCalendar(Calendar cal1, Calendar cal2){
+    	return (cal1.get(Calendar.YEAR)==cal2.get(Calendar.YEAR))
+				&&(cal1.get(Calendar.MONTH)==cal2.get(Calendar.MONTH))
+				&&(cal1.get(Calendar.DAY_OF_MONTH)==cal2.get(Calendar.DAY_OF_MONTH));
+    }
 }
