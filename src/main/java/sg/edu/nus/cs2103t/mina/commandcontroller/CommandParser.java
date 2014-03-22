@@ -59,12 +59,10 @@ public class CommandParser {
 
             if (tokens[i].equalsIgnoreCase(PRIORITY) && !hasValue(PRIORITY)) {
                 int prevIndex = i - 1;
-                if (tokens[prevIndex].equalsIgnoreCase("low")) {
-                    addPriority(tokens[prevIndex]);
+                if ( tryAddPriority(tokens[prevIndex]) ) {
                     continue;
                 } else if (i + 1 < tokens.length && 
-                            tokens[i + 1].equalsIgnoreCase("low")) {
-                    addPriority(tokens[i + 1]);
+                        tryAddPriority(tokens[i + 1])) {
                     i++;
                     continue;
                 }
@@ -73,13 +71,10 @@ public class CommandParser {
             if (tokens[i].equalsIgnoreCase("-priority")) {
                 int nextIndex = i + 1;
                 if (nextIndex < tokens.length && 
-                        tokens[nextIndex].equalsIgnoreCase("L")) {
-                    addPriority(tokens[nextIndex]);
+                        tryAddPriority(tokens[i + 1])) {
                     i++;
                     continue;
                 }
-                throw new ParseException("Priority keyword is invalid",
-                        originalString.indexOf("-priority"));
             }
             if (!hasValue(DESCRIPTION)) {
                 description.append(tokens[i]);
@@ -90,21 +85,37 @@ public class CommandParser {
         if (!hasValue(DESCRIPTION)) {
             _arguments.put(DESCRIPTION, description.toString().trim());
         }
+        logger.info("Original: " + userInput);
         result = getProperCommands();
 
         logger.info(result);
         return result.toString().trim();
     }
     
-    public void addPriority(String value) {
-        if(value.equalsIgnoreCase("low")) {
+    public boolean tryAddPriority(String value) {
+        boolean isValid = false;
+        if (value.equalsIgnoreCase("low") || value.equalsIgnoreCase("l")) {
             value = "L";
+            isValid = true;
+        } else if (value.equalsIgnoreCase("med") || value.equalsIgnoreCase("m")) {
+            value = "M";
+            isValid = true;
+        } else if (value.equalsIgnoreCase("high") || value.equalsIgnoreCase("h")) {
+            value = "H";
+            isValid = true;           
         }
-        _arguments.put(PRIORITY, value);
+        if (isValid) {
+            _arguments.put(PRIORITY, value);
+        }
+        return isValid;
     }
 
     private StringBuilder getProperCommands() {
         StringBuilder result = new StringBuilder();
+        logger.info("Building proper commands\n" + 
+                    "Action: " + getFormattedValue(ACTION) + "\n" + 
+                    "Description: " + getFormattedValue(DESCRIPTION) + "\n" + 
+                    "Priority: " + getFormattedValue(PRIORITY));
         result.append(getFormattedValue(ACTION));
         result.append(getFormattedValue(DESCRIPTION));
         if(hasValue(PRIORITY)) {
