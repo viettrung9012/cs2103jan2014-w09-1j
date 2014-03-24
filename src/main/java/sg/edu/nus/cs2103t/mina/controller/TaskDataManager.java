@@ -37,21 +37,24 @@ public class TaskDataManager {
     public static final int ERROR_MISSING_TASK_DESCRIPTION = -2;
 
     // parameters of String after trimming
-    public static final int PARAM_TASK_DESCRIPTION = 0;
+	public static final int PARAM_TASK_DESCRIPTION = 0;
 
-    private SortedSet<TodoTask> _uncompletedTodoTasks;
-    private SortedSet<DeadlineTask> _uncompletedDeadlineTasks;
-    private SortedSet<EventTask> _uncompletedEventTasks;
+	private SortedSet<TodoTask> _uncompletedTodoTasks;
+	private SortedSet<DeadlineTask> _uncompletedDeadlineTasks;
+	private SortedSet<EventTask> _uncompletedEventTasks;
 
-    private SortedSet<TodoTask> _completedTodoTasks;
-    private SortedSet<EventTask> _completedEventTasks;
-    private SortedSet<DeadlineTask> _completedDeadlineTasks;
+	private SortedSet<TodoTask> _completedTodoTasks;
+	private SortedSet<EventTask> _completedEventTasks;
+	private SortedSet<DeadlineTask> _completedDeadlineTasks;
 
-    private List<MemoryDataObserver> _observers;
-    private DataSyncManager _syncManager;
+	private final List<SyncDataParameter> allDataList = new ArrayList<SyncDataParameter>(
+			6);
+	
+	private List<MemoryDataObserver> _observers;
+	private DataSyncManager _syncManager;
 
-    public TaskDataManager() {
-        initiateVariables();
+	public TaskDataManager() {
+		initiateVariables();
     }
 
     private void initiateVariables() {
@@ -350,10 +353,7 @@ public class TaskDataManager {
     /**
      * Saves all tasks into storage by calling all the sync methods
      */
-    public void saveAllTasks() {
-        // TODO: make allDataList final field
-        List<SyncDataParameter> allDataList = new ArrayList<SyncDataParameter>(
-                6);
+    public void saveAllTasks() { 
         allDataList.add(new SyncDataParameter(_completedEventTasks,
                 TaskType.EVENT, true));
         allDataList.add(new SyncDataParameter(_uncompletedEventTasks,
