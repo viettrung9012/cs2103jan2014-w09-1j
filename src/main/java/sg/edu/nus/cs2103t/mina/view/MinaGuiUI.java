@@ -538,7 +538,18 @@ public class MinaGuiUI extends MinaView {
                             .isSameDateCalendar(currentDate, itemStartDate))) {
                 currentDate = itemStartDate;
                 StyleRange eventStyle = new StyleRange();
-                if (DateUtil.isSameDateCalendar(_today, currentDate)) {
+                if (currentDate.before(_today)&&!DateUtil.isSameDateCalendar(_today, currentDate)){
+                	eventStyle.start = initialCursorPosition;
+                    currentDateString = currentDate.get(Calendar.DATE) + "/"
+                            + (currentDate.get(Calendar.MONTH) + 1) + "/"
+                            + currentDate.get(Calendar.YEAR) + "\n";
+                    eventStyle.length = currentDateString.length();
+                    eventStyle.foreground = SWTResourceManager
+                            .getColor(SWT.COLOR_GRAY);
+                    _eventListUI.append(currentDateString);
+                    _eventListUI.setStyleRange(eventStyle);
+                    initialCursorPosition += currentDateString.length();
+                } else if (DateUtil.isSameDateCalendar(_today, currentDate)) {
                     eventStyle.start = initialCursorPosition;
                     currentDateString = "Today\n";
                     eventStyle.length = currentDateString.length();
@@ -614,7 +625,18 @@ public class MinaGuiUI extends MinaView {
                     || (!DateUtil.isSameDateCalendar(currentDate, itemDate))) {
                 currentDate = itemDate;
                 StyleRange deadlineStyle = new StyleRange();
-                if (DateUtil.isSameDateCalendar(_today, currentDate)) {
+            	if (currentDate.before(_today)&&!DateUtil.isSameDateCalendar(_today, currentDate)){
+            		deadlineStyle.start = initialCursorPosition;
+                    currentDateString = currentDate.get(Calendar.DATE) + "/"
+                            + (currentDate.get(Calendar.MONTH) + 1) + "/"
+                            + currentDate.get(Calendar.YEAR) + "\n";
+                    deadlineStyle.length = currentDateString.length();
+                    deadlineStyle.foreground = SWTResourceManager
+                            .getColor(SWT.COLOR_GRAY);
+                    _deadlineListUI.append(currentDateString);
+                    _deadlineListUI.setStyleRange(deadlineStyle);
+                    initialCursorPosition += currentDateString.length();
+            	} else if (DateUtil.isSameDateCalendar(_today, currentDate)) {
                     deadlineStyle.start = initialCursorPosition;
                     currentDateString = "Today\n";
                     deadlineStyle.length = currentDateString.length();

@@ -4,7 +4,6 @@ import java.util.LinkedList;
 
 import sg.edu.nus.cs2103t.mina.commandcontroller.CommandProcessor.CommandType;
 import sg.edu.nus.cs2103t.mina.model.parameter.DataParameter;
-import sg.edu.nus.cs2103t.mina.model.parameter.FilterParameter;
 
 public class CommandHistory {
 	
@@ -12,15 +11,12 @@ public class CommandHistory {
 	private LinkedList<DataParameter> _undoParameter;
 	private LinkedList<CommandType> _redoCommand;
 	private LinkedList<DataParameter> _redoParameter;
-	
-	private FilterParameter _lastFilter;
-	
+		
 	public CommandHistory(){
 		_undoCommand = new LinkedList<CommandType>();
 		_undoParameter = new LinkedList<DataParameter>();
 		_redoCommand = new LinkedList<CommandType>();
 		_redoParameter = new LinkedList<DataParameter>();
-		_lastFilter = new FilterParameter();
 	}
     
     public void addUndo(CommandType cmdType, DataParameter undoParam){
@@ -64,13 +60,5 @@ public class CommandHistory {
     
     public boolean isEmptyRedo(){
     	return _redoCommand.isEmpty();
-    }
-    
-    public void updateLastFilter(FilterParameter filterParam){
-    	_lastFilter = filterParam;
-    }
-    
-    public FilterParameter getLastFilter(){
-    	return _lastFilter;
     }
 }
