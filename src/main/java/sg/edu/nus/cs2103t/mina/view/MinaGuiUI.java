@@ -274,6 +274,9 @@ public class MinaGuiUI extends MinaView {
                             _commandHistory.poll();
                             _commandHistory.offer(command);
                         }
+                        _eventPage = 1;
+                        _deadlinePage = 1;
+                        _todoPage = 1;
                         _taskView = _commandController.processUserInput(
                                 command, _eventPage, _deadlinePage, _todoPage);
                         _userInputTextField.setText(EMPTY_STRING);

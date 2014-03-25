@@ -51,7 +51,7 @@ public class CommandProcessorTest {
     @SuppressWarnings("serial")
     @Test
     public void testProcessSearchParameter() {
-        assertEquals(cc.processSearchParameter("yesterday today tomorrow")
+        assertEquals(cc.processSearchParameter("yesterday//today//tomorrow")
                 .getKeywords(), new ArrayList<String>() {
             {
                 add("yesterday");

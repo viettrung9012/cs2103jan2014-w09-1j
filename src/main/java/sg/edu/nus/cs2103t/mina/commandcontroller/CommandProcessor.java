@@ -484,7 +484,7 @@ public class CommandProcessor {
 
     public SearchParameter processSearchParameter(String parameterString) {
         ArrayList<String> parameters = new ArrayList<String>();
-        for (String word : parameterString.split(" ")) {
+        for (String word : parameterString.split("//")) {
             parameters.add(word);
         }
         SearchParameter searchParam = new SearchParameter(parameters);
