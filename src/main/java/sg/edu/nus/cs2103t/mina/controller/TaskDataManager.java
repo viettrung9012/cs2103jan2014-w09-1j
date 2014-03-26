@@ -458,7 +458,7 @@ public class TaskDataManager {
 
             newSetOfParameters.loadOldTask(prevTask);
             newSetOfParameters.loadNewParameters(modifyParameters);
-            
+
             Task<?> newTask = addTask(newSetOfParameters);
             newTask.setLastEditedTime(new Date());
 
@@ -466,6 +466,12 @@ public class TaskDataManager {
         }
     }
 
+    /**
+     * Marks a given task as completed by setting its completed tag to true
+     * 
+     * @param completeParameters
+     * @return
+     */
     public Task<?> markCompleted(DataParameter completeParameters) {
         switch (completeParameters.getTaskObject().getType()) {
             case TODO :
@@ -476,7 +482,7 @@ public class TaskDataManager {
 
                     finTodoTask.setCompleted(true);
                     finTodoTask.setLastEditedTime(new Date());
-                    
+
                     _completedTodoTasks.add(finTodoTask);
 
                     syncCompletedTasks(TaskType.TODO);
@@ -494,7 +500,7 @@ public class TaskDataManager {
 
                     finDeadlineTask.setCompleted(true);
                     finDeadlineTask.setLastEditedTime(new Date());
-                    
+
                     _completedDeadlineTasks.add(finDeadlineTask);
 
                     syncCompletedTasks(TaskType.DEADLINE);
@@ -512,8 +518,79 @@ public class TaskDataManager {
 
                     finEventTask.setCompleted(true);
                     finEventTask.setLastEditedTime(new Date());
-                    
+
                     _completedEventTasks.add(finEventTask);
+
+                    syncCompletedTasks(TaskType.EVENT);
+                    syncUncompletedTasks(TaskType.EVENT);
+
+                    return finEventTask;
+                } else {
+                    return null;
+                }
+            default :
+                System.out.println("Unable to determine Task Type.");
+                return null;
+        }
+
+    }
+    
+    /**
+     * Marks a given task as uncompleted by setting its completed tag to false.
+     * <p>
+     * Also used for undo function.
+     * 
+     * @param uncompleteParameters
+     * @return
+     */
+    public Task<?> markUncompleted(DataParameter uncompleteParameters) {
+        switch (uncompleteParameters.getTaskObject().getType()) {
+            case TODO :
+                if (_completedTodoTasks.remove(uncompleteParameters
+                        .getTaskObject())) {
+                    TodoTask finTodoTask = (TodoTask) uncompleteParameters
+                            .getTaskObject();
+
+                    finTodoTask.setCompleted(false);
+                    finTodoTask.setLastEditedTime(new Date());
+
+                    _uncompletedTodoTasks.add(finTodoTask);
+
+                    syncCompletedTasks(TaskType.TODO);
+                    syncUncompletedTasks(TaskType.TODO);
+
+                    return finTodoTask;
+                } else {
+                    return null;
+                }
+            case DEADLINE :
+                if (_completedDeadlineTasks.remove(uncompleteParameters
+                        .getTaskObject())) {
+                    DeadlineTask finDeadlineTask = (DeadlineTask) uncompleteParameters
+                            .getTaskObject();
+
+                    finDeadlineTask.setCompleted(false);
+                    finDeadlineTask.setLastEditedTime(new Date());
+
+                    _uncompletedDeadlineTasks.add(finDeadlineTask);
+
+                    syncCompletedTasks(TaskType.DEADLINE);
+                    syncUncompletedTasks(TaskType.DEADLINE);
+
+                    return finDeadlineTask;
+                } else {
+                    return null;
+                }
+            case EVENT :
+                if (_completedEventTasks.remove(uncompleteParameters
+                        .getTaskObject())) {
+                    EventTask finEventTask = (EventTask) uncompleteParameters
+                            .getTaskObject();
+
+                    finEventTask.setCompleted(false);
+                    finEventTask.setLastEditedTime(new Date());
+
+                    _uncompletedEventTasks.add(finEventTask);
 
                     syncCompletedTasks(TaskType.EVENT);
                     syncUncompletedTasks(TaskType.EVENT);
