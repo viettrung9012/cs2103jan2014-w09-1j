@@ -544,6 +544,12 @@ public class CommandProcessor {
         filterParam.setEnd(endDate);
         filterParam.setStartTime(hasStartTime);
         filterParam.setEndTime(hasEndTime);
+        if (filterParam.getStart()!=null&&filterParam.getEnd()!=null){
+    		if (filterParam.getStart().after(filterParam.getEnd())){
+    			filterParam = null;
+    			return filterParam;
+    		}
+    	}
         return filterParam;
     }
 
