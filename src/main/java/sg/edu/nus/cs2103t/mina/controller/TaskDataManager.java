@@ -88,11 +88,11 @@ public class TaskDataManager {
     @SuppressWarnings("unchecked")
     public TaskDataManager(DataSyncManager syncManager) {
         SortedSet<? extends Task<?>> tempTasks = null;
+
         _syncManager = syncManager;
+
         _observers = new ArrayList<MemoryDataObserver>();
         _observers.add((MemoryDataObserver) syncManager);
-
-        // TODO: add HashMap to observer as well
 
         try {
             tempTasks = _syncManager.loadTaskSet(TaskType.TODO, false);
@@ -142,6 +142,10 @@ public class TaskDataManager {
             _completedEventTasks = new TreeSet<EventTask>();
             logger.error(e, e);
         }
+
+        // TODO: load from data sync manager, then add to observer
+        _recurringTasks = new HashMap<String, ArrayList<Task<?>>>();
+        _blockTasks = new HashMap<String, ArrayList<EventTask>>();
 
         updateHashMaps();
     }
@@ -410,31 +414,64 @@ public class TaskDataManager {
     public Task<?> deleteTask(DataParameter deleteParameters) {
         switch (deleteParameters.getTaskObject().getType()) {
             case TODO :
-                if (_uncompletedTodoTasks.remove(deleteParameters
-                        .getTaskObject())) {
-                    syncUncompletedTasks(TaskType.TODO);
+                if (!deleteParameters.getTaskObject().isCompleted()) {
+                    if (_uncompletedTodoTasks.remove(deleteParameters
+                            .getTaskObject())) {
+                        syncUncompletedTasks(TaskType.TODO);
 
-                    return deleteParameters.getTaskObject();
+                        return deleteParameters.getTaskObject();
+                    } else {
+                        return null;
+                    }
                 } else {
-                    return null;
+                    if (_completedTodoTasks.remove(deleteParameters
+                            .getTaskObject())) {
+                        syncUncompletedTasks(TaskType.TODO);
+
+                        return deleteParameters.getTaskObject();
+                    } else {
+                        return null;
+                    }
                 }
             case DEADLINE :
-                if (_uncompletedDeadlineTasks.remove(deleteParameters
-                        .getTaskObject())) {
-                    syncUncompletedTasks(TaskType.DEADLINE);
+                if (!deleteParameters.getTaskObject().isCompleted()) {
+                    if (_uncompletedDeadlineTasks.remove(deleteParameters
+                            .getTaskObject())) {
+                        syncUncompletedTasks(TaskType.DEADLINE);
 
-                    return deleteParameters.getTaskObject();
+                        return deleteParameters.getTaskObject();
+                    } else {
+                        return null;
+                    }
                 } else {
-                    return null;
+                    if (_completedDeadlineTasks.remove(deleteParameters
+                            .getTaskObject())) {
+                        syncUncompletedTasks(TaskType.DEADLINE);
+
+                        return deleteParameters.getTaskObject();
+                    } else {
+                        return null;
+                    }
                 }
             case EVENT :
-                if (_uncompletedEventTasks.remove(deleteParameters
-                        .getTaskObject())) {
-                    syncUncompletedTasks(TaskType.EVENT);
+                if (!deleteParameters.getTaskObject().isCompleted()) {
+                    if (_uncompletedEventTasks.remove(deleteParameters
+                            .getTaskObject())) {
+                        syncUncompletedTasks(TaskType.EVENT);
 
-                    return deleteParameters.getTaskObject();
+                        return deleteParameters.getTaskObject();
+                    } else {
+                        return null;
+                    }
                 } else {
-                    return null;
+                    if (_completedEventTasks.remove(deleteParameters
+                            .getTaskObject())) {
+                        syncUncompletedTasks(TaskType.EVENT);
+
+                        return deleteParameters.getTaskObject();
+                    } else {
+                        return null;
+                    }
                 }
             default :
                 // System.out.println("Unable to determine Task Type.");
@@ -534,7 +571,7 @@ public class TaskDataManager {
         }
 
     }
-    
+
     /**
      * Marks a given task as uncompleted by setting its completed tag to false.
      * <p>
