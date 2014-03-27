@@ -767,7 +767,7 @@ public class CommandParserTest {
     @Ignore
     @Test
     public void testModify() throws ParseException{
-        
+     
     }
     
     //XXX test for functions
