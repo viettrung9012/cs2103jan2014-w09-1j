@@ -268,6 +268,9 @@ public class MinaGuiUI extends MinaView {
 					_taskView = _commandController.processUserInput(command,
 							_eventPage, _deadlinePage, _todoPage);
 					_userInputTextField.setText(EMPTY_STRING);
+					_eventPage = 1;
+					_deadlinePage = 1;
+					_todoPage = 1;
 					displayOutput();
 					updateLists();
 					updateArrowNavigation();

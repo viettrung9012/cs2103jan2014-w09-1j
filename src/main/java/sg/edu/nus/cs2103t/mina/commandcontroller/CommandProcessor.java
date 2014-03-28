@@ -623,8 +623,8 @@ public class CommandProcessor {
         }
         ArrayList<Task<?>> pageOfModifyObject = _taskView.getPage(original,
                 pageNum);
-        Task<?> markDeleteTask = pageOfModifyObject.get(userfriendlyTaskID - 1);
-        modifyParam.setTaskObject(markDeleteTask);
+        Task<?> modifyTask = pageOfModifyObject.get(userfriendlyTaskID - 1);
+        modifyParam.setTaskObject(modifyTask);
         modifyParam.setTaskID(userfriendlyTaskID);
         if (parameters.contains("-totype")) {
             int indexOfNewTaskType = parameters.indexOf("-totype") + 1;
