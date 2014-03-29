@@ -1,11 +1,6 @@
 package sg.edu.nus.cs2103t.mina.view;
 
-import java.util.List;
-import java.util.SortedSet;
-
-import sg.edu.nus.cs2103t.mina.model.DeadlineTask;
-import sg.edu.nus.cs2103t.mina.model.EventTask;
-import sg.edu.nus.cs2103t.mina.model.TodoTask;
+import sg.edu.nus.cs2103t.mina.controller.CommandManager;
 
 /**
  * 
@@ -16,21 +11,27 @@ import sg.edu.nus.cs2103t.mina.model.TodoTask;
  * @author duzhiyuan
  * @author joannemah
  */
-public interface MinaView {
+public abstract class MinaView {
+    
+    protected CommandManager _commandController;
+    
+    public MinaView(CommandManager commandController) {
+        _commandController = commandController;
+    }
 
     /**
      * Get user input
      * 
      * @return user input string
      */
-    public String getUserInput();
+    public abstract String getUserInput();
 
     /**
      * Display output to user
      * 
      * @param message output message to be displayed
      */
-    public void displayOutput(String message);
+    public abstract void displayOutput();
 
     /**
      * Update List Data in UI
@@ -39,8 +40,7 @@ public interface MinaView {
      * @param deadlineList the deadline task list
      * @param todoList the todo task list
      */
-    public void updateLists(SortedSet<EventTask> allEventTasks,
-            SortedSet<DeadlineTask> allDeadlineTasks,
-            SortedSet<TodoTask> allTodoTasks);
+    public abstract void updateLists();
 
+    public abstract void loop();
 }

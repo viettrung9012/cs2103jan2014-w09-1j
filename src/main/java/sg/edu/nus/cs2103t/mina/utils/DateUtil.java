@@ -1,10 +1,13 @@
 package sg.edu.nus.cs2103t.mina.utils;
 
+import hirondelle.date4j.DateTime;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -25,30 +28,53 @@ public final class DateUtil {
 		private static final long serialVersionUID = 1L;
 
 	{
-        put("^\\d{8}$", "yyyyMMdd");
+        put("^\\d{8}$", "ddMMyyyy");
         put("^\\d{1,2}-\\d{1,2}-\\d{4}$", "dd-MM-yyyy");
         put("^\\d{4}-\\d{1,2}-\\d{1,2}$", "yyyy-MM-dd");
-        put("^\\d{1,2}/\\d{1,2}/\\d{4}$", "MM/dd/yyyy");
+        put("^\\d{1,2}/\\d{1,2}/\\d{4}$", "dd/MM/yyyy");
         put("^\\d{4}/\\d{1,2}/\\d{1,2}$", "yyyy/MM/dd");
         put("^\\d{1,2}\\s[a-z]{3}\\s\\d{4}$", "dd MMM yyyy");
         put("^\\d{1,2}\\s[a-z]{4,}\\s\\d{4}$", "dd MMMM yyyy");
-        put("^\\d{12}$", "yyyyMMddHHmm");
-        put("^\\d{8}\\s\\d{4}$", "yyyyMMdd HHmm");
-        put("^\\d{1,2}-\\d{1,2}-\\d{4}\\s\\d{1,2}:\\d{2}$", "dd-MM-yyyy HH:mm");
-        put("^\\d{4}-\\d{1,2}-\\d{1,2}\\s\\d{1,2}:\\d{2}$", "yyyy-MM-dd HH:mm");
-        put("^\\d{1,2}/\\d{1,2}/\\d{4}\\s\\d{1,2}:\\d{2}$", "MM/dd/yyyy HH:mm");
-        put("^\\d{4}/\\d{1,2}/\\d{1,2}\\s\\d{1,2}:\\d{2}$", "yyyy/MM/dd HH:mm");
-        put("^\\d{1,2}\\s[a-z]{3}\\s\\d{4}\\s\\d{1,2}:\\d{2}$", "dd MMM yyyy HH:mm");
-        put("^\\d{1,2}\\s[a-z]{4,}\\s\\d{4}\\s\\d{1,2}:\\d{2}$", "dd MMMM yyyy HH:mm");
-        put("^\\d{14}$", "yyyyMMddHHmmss");
-        put("^\\d{8}\\s\\d{6}$", "yyyyMMdd HHmmss");
-        put("^\\d{1,2}-\\d{1,2}-\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$", "dd-MM-yyyy HH:mm:ss");
-        put("^\\d{4}-\\d{1,2}-\\d{1,2}\\s\\d{1,2}:\\d{2}:\\d{2}$", "yyyy-MM-dd HH:mm:ss");
-        put("^\\d{1,2}/\\d{1,2}/\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$", "MM/dd/yyyy HH:mm:ss");
-        put("^\\d{4}/\\d{1,2}/\\d{1,2}\\s\\d{1,2}:\\d{2}:\\d{2}$", "yyyy/MM/dd HH:mm:ss");
-        put("^\\d{1,2}\\s[a-z]{3}\\s\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$", "dd MMM yyyy HH:mm:ss");
-        put("^\\d{1,2}\\s[a-z]{4,}\\s\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$", "dd MMMM yyyy HH:mm:ss");
-    }};
+        put("^\\d{12}$", "ddMMyyyyHHmm");
+        put("^\\d{8}\\s\\d{4}$", "ddMMyyyy HHmm");
+        put("^\\d{1,2}-\\d{1,2}-\\d{4}\\s\\d{1,2}:\\d{2}$", "dd-MM-yyyy hh12:mm");
+        put("^\\d{4}-\\d{1,2}-\\d{1,2}\\s\\d{1,2}:\\d{2}$", "yyyy-MM-dd hh12:mm");
+        put("^\\d{1,2}/\\d{1,2}/\\d{4}\\s\\d{1,2}:\\d{2}$", "dd/MM/yyyy hh12:mm");
+        put("^\\d{4}/\\d{1,2}/\\d{1,2}\\s\\d{1,2}:\\d{2}$", "yyyy/MM/dd hh12:mm");
+        put("^\\d{1,2}\\s[a-z]{3}\\s\\d{4}\\s\\d{1,2}:\\d{2}$", "dd MMM yyyy hh12:mm");
+        put("^\\d{1,2}\\s[a-z]{4,}\\s\\d{4}\\s\\d{1,2}:\\d{2}$", "dd MMMM yyyy hh12:mm");
+        put("^\\d{14}$", "ddMMyyyyHHmmss");
+        put("^\\d{8}\\s\\d{6}$", "ddMMyyyy HHmmss");
+        put("^\\d{1,2}-\\d{1,2}-\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$", "dd-MM-yyyy hh12:mm:ss");
+        put("^\\d{4}-\\d{1,2}-\\d{1,2}\\s\\d{1,2}:\\d{2}:\\d{2}$", "yyyy-MM-dd hh12:mm:ss");
+        put("^\\d{1,2}/\\d{1,2}/\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$", "dd/MM/yyyy hh12:mm:ss");
+        put("^\\d{4}/\\d{1,2}/\\d{1,2}\\s\\d{1,2}:\\d{2}:\\d{2}$", "yyyy/MM/dd hh12:mm:ss");
+        put("^\\d{1,2}\\s[a-z]{3}\\s\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$", "dd MMM yyyy hh12:mm:ss");
+        put("^\\d{1,2}\\s[a-z]{4,}\\s\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$", "dd MMMM yyyy hh12:mm:ss");
+        
+        put("^\\d{1,2}\\.\\d{1,2}\\.\\d{4}$", "dd.MM.yyyy");
+        put("^\\d{4}\\.\\d{1,2}\\.\\d{1,2}$", "yyyy.MM.dd");
+        put("^\\d{1,2}\\.\\d{1,2}\\.\\d{4}\\s\\d{1,2}:\\d{2}$", "dd.MM.yyyy hh12:mm");
+        put("^\\d{4}\\.\\d{1,2}\\.\\d{1,2}\\s\\d{1,2}:\\d{2}$", "yyyy.MM.dd hh12:mm");
+        put("^\\d{1,2}\\.\\d{1,2}\\.\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$", "dd.MM.yyyy hh12:mm:ss");
+        
+        put("^\\d{1,2}-\\d{1,2}-\\d{4}\\s\\d{1,2}.\\d{2}.\\d{2}$", "dd-MM-yyyy HH.mm.ss");
+        put("^\\d{4}-\\d{1,2}-\\d{1,2}\\s\\d{1,2}.\\d{2}.\\d{2}$", "yyyy-MM-dd HH.mm.ss");
+        put("^\\d{1,2}/\\d{1,2}/\\d{4}\\s\\d{1,2}.\\d{2}.\\d{2}$", "dd/MM/yyyy HH.mm.ss");
+        put("^\\d{4}/\\d{1,2}/\\d{1,2}\\s\\d{1,2}.\\d{2}.\\d{2}$", "yyyy/MM/dd HH.mm.ss");
+        put("^\\d{1,2}\\s[a-z]{3}\\s\\d{4}\\s\\d{1,2}.\\d{2}.\\d{2}$", "dd MMM yyyy HH.mm.ss");
+        put("^\\d{1,2}\\s[a-z]{4,}\\s\\d{4}\\s\\d{1,2}.\\d{2}.\\d{2}$", "dd MMMM yyyy HH.mm.ss");
+        put("^\\d{1,2}\\.\\d{1,2}\\.\\d{4}\\s\\d{1,2}.\\d{2}$", "dd.MM.yyyy HH.mm");
+        put("^\\d{4}\\.\\d{1,2}\\.\\d{1,2}\\s\\d{1,2}.\\d{2}$", "yyyy.MM.dd HH.mm");
+        put("^\\d{1,2}\\.\\d{1,2}\\.\\d{4}\\s\\d{1,2}.\\d{2}.\\d{2}$", "dd.MM.yyyy HH.mm.ss");
+        put("^\\d{1,2}-\\d{1,2}-\\d{4}\\s\\d{1,2}.\\d{2}$", "dd-MM-yyyy HH.mm");
+        put("^\\d{4}-\\d{1,2}-\\d{1,2}\\s\\d{1,2}.\\d{2}$", "yyyy-MM-dd HH.mm");
+        put("^\\d{1,2}/\\d{1,2}/\\d{4}\\s\\d{1,2}.\\d{2}$", "dd/MM/yyyy HH.mm");
+        put("^\\d{4}/\\d{1,2}/\\d{1,2}\\s\\d{1,2}.\\d{2}$", "yyyy/MM/dd HH.mm");
+        put("^\\d{1,2}\\s[a-z]{3}\\s\\d{4}\\s\\d{1,2}.\\d{2}$", "dd MMM yyyy HH.mm");
+        put("^\\d{1,2}\\s[a-z]{4,}\\s\\d{4}\\s\\d{1,2}.\\d{2}$", "dd MMMM yyyy HH.mm");
+        
+	}};
 
     private DateUtil() {
         // Utility class, hide the constructor.
@@ -166,5 +192,123 @@ public final class DateUtil {
             }
         }
         return null; // Unknown format.
+    }
+    
+    // Comparator
+    
+    /**
+     * Determine whether two Calendar instances are on the same date (time can be different)
+     * @param Calendar cal1, Calendar cal2
+     * @return boolean _isSameDate
+     */
+    public static boolean isSameDateCalendar(Calendar cal1, Calendar cal2){
+    	return (cal1.get(Calendar.YEAR)==cal2.get(Calendar.YEAR))
+				&&(cal1.get(Calendar.MONTH)==cal2.get(Calendar.MONTH))
+				&&(cal1.get(Calendar.DAY_OF_MONTH)==cal2.get(Calendar.DAY_OF_MONTH));
+    }
+    
+    /**
+     * Display date and time from a date object
+     * @param Date date
+     * @return String _date_time in user-friendly format
+     */
+    public static String displayDateTime(Calendar date){
+    	return displayDateOnly(date).concat(" ".concat(displayTimeOnly(date)));
+    }
+    
+    /**
+     * Display date only from a date object
+     * @param Date date
+     * @return String _date in user-friendly format
+     */
+    public static String displayDateOnly(Calendar date){
+    	Calendar todayCalendar = Calendar.getInstance(TimeZone.getDefault());
+    	DateTime todayDateTime = DateTime.today(TimeZone.getDefault());
+    	DateTime dateToDisplay = new DateTime(date.get(Calendar.YEAR)+"-"+
+    			String.format("%02d" ,(date.get(Calendar.MONTH)+1))+"-"+String.format("%02d" ,date.get(Calendar.DAY_OF_MONTH))+" "+
+    			String.format("%02d" ,date.get(Calendar.HOUR_OF_DAY))+":"+String.format("%02d" ,date.get(Calendar.MINUTE))+":"+
+    			String.format("%02d" ,date.get(Calendar.SECOND)));
+    	DateTime thisSun = getThisSunday(todayCalendar);
+    	DateTime nextSun = getNextSunday(todayCalendar);
+    	DateTime lastSun = getLastSunday(todayCalendar);
+    	DateTime sunBeforeLast = getSundayBeforeLast(todayCalendar);
+    	if (nextSun.numDaysFrom(dateToDisplay)>=1||dateToDisplay.numDaysFrom(sunBeforeLast)>=0){
+    		return dateToDisplay.format("WWWW, DD MMM YYYY", Locale.US);
+    	} else if (thisSun.numDaysFrom(dateToDisplay)>=1&&dateToDisplay.numDaysFrom(nextSun)>=0){
+    		return "Next ".concat(dateToDisplay.format("WWWW", Locale.US));
+    	} else if (lastSun.numDaysFrom(dateToDisplay)>=1&&dateToDisplay.numDaysFrom(thisSun)>=0){
+    		if (todayDateTime.numDaysFrom(dateToDisplay)==0){
+    			return "Today";
+    		} else if (todayDateTime.numDaysFrom(dateToDisplay)==1){
+    			return "Tomorrow";
+    		} else {
+    			return dateToDisplay.format("WWWW", Locale.US);
+    		}
+    	} else {
+    		return "Last ".concat(dateToDisplay.format("WWWW", Locale.US));
+    	}
+    }
+    
+    /**
+     * Display time only from a date object
+     * @param Date date
+     * @return String _time in user-friendly format
+     */
+    public static String displayTimeOnly(Calendar date){
+    	DateTime dateToDisplay = new DateTime(date.get(Calendar.YEAR)+"-"+
+    			String.format("%02d" ,(date.get(Calendar.MONTH)+1))+"-"+String.format("%02d" ,date.get(Calendar.DAY_OF_MONTH))+" "+
+    			String.format("%02d" ,date.get(Calendar.HOUR_OF_DAY))+":"+String.format("%02d" ,date.get(Calendar.MINUTE))+":"+
+    			String.format("%02d" ,date.get(Calendar.SECOND)));
+    	return dateToDisplay.format("h12:mm a", Locale.US).toLowerCase();
+    }
+    
+    /**
+     * Get the calendar of current week's Sunday
+     * @param Calendar currentDate
+     * @return Calendar _thisSunday
+     */
+    private static DateTime getThisSunday(Calendar currentDate){
+    	Calendar thisSun = Calendar.getInstance();
+    	thisSun.set(Calendar.DAY_OF_WEEK,Calendar.SUNDAY);
+    	DateTime thisSunday = new DateTime(thisSun.get(Calendar.YEAR)+"-"+
+    			String.format("%02d" ,(thisSun.get(Calendar.MONTH)+1))+"-"+String.format("%02d" ,thisSun.get(Calendar.DAY_OF_MONTH))+" "+
+    			String.format("%02d" ,thisSun.get(Calendar.HOUR_OF_DAY))+":"+String.format("%02d" ,thisSun.get(Calendar.MINUTE))+":"+
+    			String.format("%02d" ,thisSun.get(Calendar.SECOND)));
+    	thisSunday = thisSunday.plusDays(7);
+    	return thisSunday;
+    }
+    
+    
+    /**
+     * Get the calendar of next week's Sunday
+     * @param Calendar currentDate
+     * @return Calendar _nextSunday
+     */
+    private static DateTime getNextSunday(Calendar currentDate){
+    	DateTime thisSun = getThisSunday(currentDate);
+    	DateTime nextSun = thisSun.plusDays(7);
+    	return nextSun;
+    }
+    
+    /**
+     * Get the calendar of last week's Sunday
+     * @param Calendar currentDate
+     * @return Calendar _lastSunday
+     */
+    private static DateTime getLastSunday(Calendar currentDate){
+    	DateTime thisSun = getThisSunday(currentDate);
+    	DateTime lastSun = thisSun.minusDays(7);
+    	return lastSun;
+    }
+    
+    /**
+     * Get the calendar of week before last week's Sunday
+     * @param Calendar currentDate
+     * @return Calendar _sundayBeforeLast
+     */
+    private static DateTime getSundayBeforeLast(Calendar currentDate){
+    	DateTime thisSun = getThisSunday(currentDate);
+    	DateTime sunBeforeLast = thisSun.minusDays(14);
+    	return sunBeforeLast;
     }
 }

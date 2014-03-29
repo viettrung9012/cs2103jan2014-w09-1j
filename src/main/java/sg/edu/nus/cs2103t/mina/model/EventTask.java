@@ -29,9 +29,18 @@ public class EventTask extends Task<EventTask> implements Comparable<EventTask> 
         _priority = priority;
     }
 
+    public EventTask(TaskType type, String description, String id,
+            char priority, Date createdTime, Date lastEditedTime,
+            boolean isCompleted, Date start, Date end) {
+        super(type, description, id, priority, createdTime, lastEditedTime,
+                isCompleted);
+        _startTime = start;
+        _endTime = end;
+    }
+
     public int compareTo(EventTask otherTask) {
         Date currEventStart = _startTime;
-        Date otherEventStart = otherTask.getStartTime();
+        Date otherEventStart = otherTask._startTime;
 
         if (currEventStart.before(otherEventStart)) {
             return -1;
@@ -69,15 +78,16 @@ public class EventTask extends Task<EventTask> implements Comparable<EventTask> 
         sb.append(")");
         return sb.toString();
     }
-    
+
     @Override
     public boolean equals(Object other) {
-    	if(other instanceof EventTask) {
-    		EventTask otherEvent = (EventTask) other;
-    		return this.compareTo(otherEvent)==0;
-    	} else {
-    		return false;
-    	}
+        if (super.equals(other)) {
+            if (!(other instanceof EventTask)) {
+                return false;
+            }
+            return compareTo((EventTask) other) == 0;
+        }
+        return false;
     }
-    
+
 }

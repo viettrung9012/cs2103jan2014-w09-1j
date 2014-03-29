@@ -1,11 +1,13 @@
-package sg.edu.cs2103t.mina.controller;
+package sg.edu.nus.cs2103t.mina.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TimeZone;
@@ -16,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import sg.edu.cs2103t.mina.stub.TaskDataManagerStub;
 import sg.edu.nus.cs2103t.mina.controller.TaskFilterManager;
 import sg.edu.nus.cs2103t.mina.model.DeadlineTask;
 import sg.edu.nus.cs2103t.mina.model.EventTask;
@@ -25,7 +26,9 @@ import sg.edu.nus.cs2103t.mina.model.Task;
 import sg.edu.nus.cs2103t.mina.model.TaskType;
 import sg.edu.nus.cs2103t.mina.model.TodoTask;
 import sg.edu.nus.cs2103t.mina.model.parameter.FilterParameter;
+import sg.edu.nus.cs2103t.mina.stub.TaskDataManagerStub;
 
+//@author Du Zhiyuan
 public class TaskFilterManagerFilterTest {
 
     private static final int SEC = 2;
@@ -86,8 +89,7 @@ public class TaskFilterManagerFilterTest {
      */
     @Test
     public void testNoFilter() {
-
-        ArrayList<Task<?>> test = tfmTest.filterTask(new FilterParameter());
+        ArrayList<Task<?>> test = getResult(new FilterType[]{});
         assertTrue("Must have everything!", checkAllUncompletedTasks(test));
 
     }
@@ -117,7 +119,7 @@ public class TaskFilterManagerFilterTest {
      */
     @Test
     public void testTodosOnly() {
-
+        
         ArrayList<Task<?>> test = getResult(FilterType.TODO);
         SortedSet<TodoTask> todos = tdmStub.getUncompletedTodoTasks();
         int numOfTodos = todos.size();
@@ -134,7 +136,8 @@ public class TaskFilterManagerFilterTest {
      */
     @Test
     public void testEventsOnly() {
-
+        
+        /*XXX EP: Either uncompleted event only or not at all*/
         ArrayList<Task<?>> test = getResult(FilterType.EVENT);
         SortedSet<EventTask> events = tdmStub.getUncompletedEventTasks();
         int numOfEvents = events.size();
@@ -186,10 +189,14 @@ public class TaskFilterManagerFilterTest {
      */
     @Test
     public void testFilterCombination() {
-
+        
+        /* XXX Testing for EP: UNCOMPLETE DEADLINE UNCOMPLETE EVENT */
+        /* XXX Testing for EP: in fact, this test tries to cover all possible EP
+         *      P({UNCOMPLETE, COMPLETE} X {EVENT, DEADLINE, TODO}) */
+        
         // With deadlines and events
         FilterType[] filters = { FilterType.DEADLINE, FilterType.EVENT };
-
+        
         ArrayList<Task<?>> test = getResult(filters);
         int actualSize = tdmStub.getUncompletedDeadlineTasks().size() + tdmStub
                 .getUncompletedEventTasks().size();
@@ -198,7 +205,7 @@ public class TaskFilterManagerFilterTest {
                 "Contains only uncompleted deadline and events!",
                 actualSize == test.size() && checkTwoTaskTypes(test,
                         TaskType.DEADLINE, TaskType.EVENT, UNCOMPLETE));
-
+        
         // With deadlines and todos
         filters = new FilterType[] { FilterType.DEADLINE, FilterType.TODO };
         test = getResult(filters);
@@ -359,7 +366,7 @@ public class TaskFilterManagerFilterTest {
                 tdmStub.getUncompletedDeadlineTasks().size();
         assertTrue("Contains all task!", checkAllUncompletedTasks(test));
     }
-
+    
     /**
      * Test the date filter by range, start to end
      */
@@ -376,12 +383,23 @@ public class TaskFilterManagerFilterTest {
         while (eventsIter.hasNext()) {
             events.add(eventsIter.next());
         }
+        
+        Iterator<DeadlineTask> deadlinesIter = tdmStub.getUncompletedDeadlineTasks().iterator();
+        ArrayList<DeadlineTask> deadlines = new ArrayList<DeadlineTask>();
+        
+        while (deadlinesIter.hasNext()) {
+            deadlines.add(deadlinesIter.next());
+        }
+        
         logger.info(events);
+        logger.info(deadlines);
+        
         // Test dates only. No time (00:00)
         // A week from now.
         logger.info("Testing dates with only");
         Date[] dateRange = getRange(TODAY, new int[0], 
                                     WEEK, new int[0], NO_TIME);
+        logger.info("Date Range: " + Arrays.toString(dateRange));
         ArrayList<Task<?>> test = getResult(dateFilters, dateRange[START],
                                             dateRange[END], NO_TIME);
         
@@ -399,6 +417,7 @@ public class TaskFilterManagerFilterTest {
         dateRange = getRange(2, new int[]{12,0,0},
                              5, new int[]{9,0,0}, 
                              HAS_TIME);   
+        logger.info("Date Range: " + Arrays.toString(dateRange));
         test = getResult(dateFilters, dateRange[START],
                          dateRange[END], HAS_TIME);  
         
@@ -411,6 +430,7 @@ public class TaskFilterManagerFilterTest {
         //Test date with start only
         logger.info("Testing date with start only");
         dateRange = getRange(TODAY, new int[0], 0, new int[0], NO_TIME);
+        logger.info("Date Range: " + Arrays.toString(dateRange));
         test = getResult(dateFilters, dateRange[START],
                         null, HAS_TIME);  
         assertEquals(events, test);
@@ -419,6 +439,7 @@ public class TaskFilterManagerFilterTest {
         logger.info("Testing date with end only");
         dateRange = getRange(2, new int[]{12,00,0},
                              5, new int[]{9,0,0}, HAS_TIME);
+        logger.info("Date Range: " + Arrays.toString(dateRange));
         test = getResult(dateFilters, null,
                          dateRange[END], HAS_TIME);  
         
@@ -428,25 +449,137 @@ public class TaskFilterManagerFilterTest {
         }      
         assertEquals(expected, test);
         
+        logger.info("Testing for middle");
+        logger.info("Getting Date range");
+        dateRange = getRange(2, new int[]{12,00,0},
+                5, new int[]{9,0,0}, HAS_TIME);
+        test = getResult(dateFilters, null,
+                    dateRange[END], HAS_TIME);  
+        
+        expected = new ArrayList<EventTask>();
+        for(int i=0; i<5; i++) {
+        expected.add(events.get(i));
+        }      
+        assertEquals(expected, test);        
+        
+        //Checking for overlaps
+        //Events only
+        logger.info("Testing overlaps: START < event.start but END > event.start ");
+        logger.info("Getting date range");
+        dateRange = getRange(TODAY, new int[]{0,0,0}, 
+                            1, new int[]{12,0,0}, HAS_TIME);
+        test = getResult(dateFilters, null,
+                        dateRange[END], HAS_TIME);
+        expected = new ArrayList<EventTask>();
+        expected.add(events.get(0));
+        assertEquals(expected, test);
+        
+        logger.info("Testing overlaps: START < event.end but END > event.end ");
+        logger.info("Getting date range");
+        dateRange = getRange(1, new int[]{12,0,0}, 
+                            0, new int[]{20,0,0}, HAS_TIME);
+        test = getResult(dateFilters, null,
+                        dateRange[END], HAS_TIME);
+        expected = new ArrayList<EventTask>();
+        expected.add(events.get(0));
+        assertEquals(expected, test);   
+
+        logger.info("Testing strict subset: START > event.start and END < event.end ");
+        logger.info("Getting date range");
+        dateRange = getRange(1, new int[]{12,0,0}, 
+                            0, new int[]{12,30,0}, HAS_TIME);
+        test = getResult(dateFilters, null,
+                        dateRange[END], HAS_TIME);
+        expected = new ArrayList<EventTask>();
+        expected.add(events.get(0));
+        assertEquals(expected, test); 
+        
+        logger.info("Testing equality: START = event.start and END > event.end ");
+        logger.info("Getting date range");
+        dateRange = getRange(1, new int[]{11,15,0}, 
+                            0, new int[]{20,30,0}, HAS_TIME);
+        test = getResult(dateFilters, null,
+                        dateRange[END], HAS_TIME);
+        expected = new ArrayList<EventTask>();
+        expected.add(events.get(0));
+        assertEquals(expected, test); 
+        
+        logger.info("Testing equality: START < event.start and END = event.end ");
+        logger.info("Getting date range");
+        dateRange = getRange(1, new int[]{10,15,0}, 
+                            0, new int[]{13,15,0}, HAS_TIME);
+        test = getResult(dateFilters, null,
+                        dateRange[END], HAS_TIME);
+        expected = new ArrayList<EventTask>();
+        expected.add(events.get(0));
+        assertEquals(expected, test); 
+        
+        //Deadlines only
+        
+        
+        
         resetTdmTfm();
         
+    } 
+    
+    
+    @Test
+    /**
+     * The ArrayList has already been tested.
+     * Now, it's just to test whether the keys only
+     * cover what the users want.
+     * Note we need not do this on Search 
+     */
+    public void testHashMap(){
+        ArrayList<String> newKeywords= new ArrayList<String>();
+        FilterParameter param;
+        HashMap<TaskType, ArrayList<Task<?>>> result;
+        
+        //Test one type  
+        newKeywords.add("deadline");
+        param = new FilterParameter(newKeywords);
+        result = tfmTest.filterTask(param);
+        assertTrue("Must contain only DEADLINE", result.containsKey(TaskType.DEADLINE) &&
+                                                 result.keySet().size()==1);
+        newKeywords.clear();
+        
+        //Test two type
+        newKeywords.add("deadline");
+        newKeywords.add("event");
+        param = new FilterParameter(newKeywords);
+        result = tfmTest.filterTask(param);
+        assertTrue("Must contain only DEADLINE and Event", result.containsKey(TaskType.DEADLINE) &&
+                                                            result.containsKey(TaskType.EVENT) &&
+                                                            result.keySet().size()==2);
+        newKeywords.clear();
+        
+        //Test three types
+        param = new FilterParameter(newKeywords);
+        result = tfmTest.filterTask(param);
+        assertTrue("Must contain only DEADLINE and TODO", result.containsKey(TaskType.DEADLINE) &&
+                                                            result.containsKey(TaskType.EVENT) &&
+                                                            result.containsKey(TaskType.TODO) &&
+                                                            result.keySet().size()==3);
+        newKeywords.clear();
     }
     
     /*
      * Test the date range
      */
-    
     /**
      * Get the range of date.
-     * 
-     * @param start 
-     * How many days from today
-     * @param end 
+     * @param startNumDay
+     * How many days from 'today'
+     * @param startMs
+     * Start time, an int array of size 3, hour/min/sec in that order
+     * @param range
      * How many days from 'start' parameter
-     * @param hasTime 
-     * If false, date will start from midnight, else it will be current time
+     * @param endMs
+     * End time, an int array of size 3, hour/min/sec in that order
+     * @param hasTime
+     * Does it have time?
      * @return
-     * A tuple with a start date and end date
+     * Date array of size 2. START and END in that order
      */
     private Date[] getRange(int startNumDay, int[] startMs, 
                             int range, int[] endMs, boolean hasTime) {
@@ -700,7 +833,15 @@ public class TaskFilterManagerFilterTest {
         }
 
         FilterParameter filter = new FilterParameter(keywords, start, end, hasTime);
-        return tfmTest.filterTask(filter);
+        HashMap<TaskType, ArrayList<Task<?>>> resultMap = tfmTest.filterTask(filter);
+        
+        ArrayList<Task<?>> result = new ArrayList<Task<?>>();
+        
+        for(TaskType type: resultMap.keySet()) {
+            result.addAll(resultMap.get(type));
+        }
+        
+        return result;
     }
 
     /**

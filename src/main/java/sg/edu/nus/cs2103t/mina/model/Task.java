@@ -1,6 +1,7 @@
 package sg.edu.nus.cs2103t.mina.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +25,10 @@ public abstract class Task<T> implements Comparable<T>, Serializable {
 
     private static final char[] PRIORITIES = { H, M, L };
 
+    public static boolean isValidPriority(char priority) {
+        return priority == L || priority == M || priority == H;
+    }
+
     protected String _id;
     protected TaskType _type;
     protected String _description;
@@ -41,6 +46,31 @@ public abstract class Task<T> implements Comparable<T>, Serializable {
         _createdTime = new Date();
         _lastEditedTime = new Date();
         _isCompleted = false;
+        _tags = new ArrayList<String>();
+    }
+    
+    public Task(TaskType type, String description, String id, char priority,
+            Date createdTime, boolean isCompleted) {
+        _type = (TaskType) type;
+        _description = description;
+        _id = id;
+        _priority = priority;
+        _createdTime = createdTime;
+        _lastEditedTime = new Date();
+        _isCompleted = isCompleted;
+        _tags = new ArrayList<String>();
+    }
+
+    public Task(TaskType type, String description, String id, char priority,
+            Date createdTime, Date lastEditedTime, boolean isCompleted) {
+        _type = (TaskType) type;
+        _description = description;
+        _id = id;
+        _priority = priority;
+        _createdTime = createdTime;
+        _lastEditedTime = lastEditedTime;
+        _isCompleted = isCompleted;
+        _tags = new ArrayList<String>();
     }
 
     protected int compareTo(Task<?> otherTask) {
@@ -131,17 +161,18 @@ public abstract class Task<T> implements Comparable<T>, Serializable {
         sb.append(_priority);
         sb.append(") done? (");
         sb.append(_isCompleted ? "yes)" : "no)");
+        sb.append(" last modified: ");
+        sb.append(_lastEditedTime);
         return sb.toString();
     }
-    
+
     @Override
     public boolean equals(Object other) {
-    	if(other instanceof Task<?>) {
-    		Task<?> otherTask = (Task<?>) other;
-    		return this.compareTo(otherTask)==0;
-    	} else {
-    		return false;
-    	}
+        if (other instanceof Task<?>) {
+            return this.compareTo((Task<?>) other) == 0;
+        } else {
+            return false;
+        }
     }
-     
+
 }

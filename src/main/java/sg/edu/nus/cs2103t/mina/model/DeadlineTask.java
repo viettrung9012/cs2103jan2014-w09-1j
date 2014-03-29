@@ -28,6 +28,14 @@ public class DeadlineTask extends Task<DeadlineTask> implements
         _priority = priority;
     }
 
+    public DeadlineTask(TaskType type, String description, String id,
+            char priority, Date createdTime, Date lastEditedTime,
+            boolean isCompleted, Date end) {
+        super(type, description, id, priority, createdTime, lastEditedTime,
+                isCompleted);
+        _endTime = end;
+    }
+
     public int compareTo(DeadlineTask otherTask) {
         Date currDeadlineEnd = this._endTime;
         Date otherDeadlineEnd = otherTask.getEndTime();
@@ -58,14 +66,15 @@ public class DeadlineTask extends Task<DeadlineTask> implements
         sb.append(")");
         return sb.toString();
     }
-    
+
     @Override
     public boolean equals(Object other) {
-    	if(other instanceof DeadlineTask) {
-    		DeadlineTask otherDeadline = (DeadlineTask) other;
-    		return this.compareTo(otherDeadline)==0;
-    	} else {
-    		return false;
-    	}
+        if (super.equals(other)) {
+            if (!(other instanceof DeadlineTask)) {
+                return false;
+            }
+            return compareTo((DeadlineTask) other) == 0;
+        }
+        return false;
     }
 }
