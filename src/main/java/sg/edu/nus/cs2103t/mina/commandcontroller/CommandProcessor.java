@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.SortedSet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +16,6 @@ import sg.edu.nus.cs2103t.mina.model.EventTask;
 import sg.edu.nus.cs2103t.mina.model.Task;
 import sg.edu.nus.cs2103t.mina.model.TaskType;
 import sg.edu.nus.cs2103t.mina.model.TaskView;
-import sg.edu.nus.cs2103t.mina.model.TodoTask;
 import sg.edu.nus.cs2103t.mina.model.parameter.DataParameter;
 import sg.edu.nus.cs2103t.mina.model.parameter.FilterParameter;
 import sg.edu.nus.cs2103t.mina.model.parameter.SearchParameter;
@@ -634,11 +632,6 @@ public class CommandProcessor {
         } else {
             modifyParam.setNewTaskType(original);
         }
-        if (parameters.contains("-priority")) {
-            int indexOfPriority = parameters.indexOf("-priority") + 1;
-            char priority = parameters.get(indexOfPriority).toCharArray()[FISRT_ARRAY_INDEX];
-            modifyParam.setPriority(priority);
-        }
         if (parameters.contains("-end")) {
             int indexOfEndDate = parameters.indexOf("-end") + 1;
             try {
@@ -737,6 +730,13 @@ public class CommandProcessor {
         			}
         		}
         	}
+        }
+        if (parameters.contains("-priority")) {
+            int indexOfPriority = parameters.indexOf("-priority") + 1;
+            char priority = parameters.get(indexOfPriority).toCharArray()[FISRT_ARRAY_INDEX];
+            modifyParam.setPriority(priority);
+        } else {
+        	modifyParam.setPriority(modifyParam.getTaskObject().getPriority());
         }
         return modifyParam;
     }

@@ -1,5 +1,7 @@
 package sg.edu.nus.cs2103t.mina.view;
 
+import java.awt.AWTException;
+import java.awt.Robot;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -78,6 +80,8 @@ public class MinaGuiUI extends MinaView {
 
 	private int _currentTab;
 	// private boolean _highlightOn;
+	
+	private Robot _bot;
 
 	private static final String ERROR = "Operation failed. Please try again.";
 	private static final String INVALID_COMMAND = "Invalid command. Please re-enter.";
@@ -134,6 +138,12 @@ public class MinaGuiUI extends MinaView {
 		_tomorrow.add(Calendar.DAY_OF_YEAR, 1);
 
 		_taskView = _commandController.getTaskView();
+		
+		try {
+			_bot = new Robot();
+		} catch (AWTException e){
+			logger.log(Level.ERROR, e.getMessage());
+		}
 
 		_shell = new Shell(_display, SWT.NO_TRIM);
 		_shell.setBackground(SWTResourceManager.getColor(0, 0, 0));
@@ -405,6 +415,30 @@ public class MinaGuiUI extends MinaView {
 						}
 					}
 				}
+				if (event.stateMask != SWT.CTRL && event.keyCode == SWT.TAB){
+					_userInputTextField.forceFocus();
+					_userInputTextField.setSelection(_userInputTextField.getText().length(), 
+							_userInputTextField.getText().length());
+					botPress(SWT.TAB);
+				}
+				if (event.stateMask != SWT.CTRL && event.keyCode == SWT.BS){
+					_userInputTextField.forceFocus();
+					_userInputTextField.setSelection(_userInputTextField.getText().length(), 
+							_userInputTextField.getText().length());
+					botPress(SWT.BS);
+				}
+				if (event.stateMask != SWT.CTRL && event.keyCode == SWT.DEL){
+					_userInputTextField.forceFocus();
+					botPress(SWT.DEL);
+				}
+				if (event.stateMask != SWT.CTRL && event.keyCode == SWT.HOME){
+					_userInputTextField.forceFocus();
+					botPress(SWT.HOME);
+				}
+				if (event.stateMask != SWT.CTRL && event.keyCode == SWT.END){
+					_userInputTextField.forceFocus();
+					botPress(SWT.END);
+				}
 				if (event.stateMask == SWT.CTRL
 						&& event.keyCode == SWT.ARROW_RIGHT) {
 					if (_currentTab == 0) {
@@ -478,6 +512,11 @@ public class MinaGuiUI extends MinaView {
 					resetPanel();
 					updateLists();
 				}
+			}
+
+			private void botPress(int key) {
+				_bot.keyPress(key);
+				_bot.keyRelease(key);
 			}
 		});
 	}
