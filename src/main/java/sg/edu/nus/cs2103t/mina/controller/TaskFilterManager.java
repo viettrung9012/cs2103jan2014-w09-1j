@@ -41,10 +41,10 @@ public class TaskFilterManager {
     public static final int ONE_DAY = ONE_HOUR * 24;
 
     private static final int HOUR = 0;
-    private static final int MIN = 0;
-    private static final int SEC = 0;
-    private static final int START_TIME[] = { 23, 59, 59 };
-    private static final int END_TIME[] = { 0, 0, 0 };
+    private static final int MIN = 1;
+    private static final int SEC = 2;
+    private static final int START_TIME[] = { 0, 0, 0 };
+    private static final int END_TIME[] = { 23, 59, 59 };
     private static final int START = 0;
     private static final int END = 1;
 
@@ -261,16 +261,16 @@ public class TaskFilterManager {
 
         if (start != null && end != null) {
 
-            logger.info("StartTargetDate: " + targetDate[START].getTime() +
+            logger.info("StartTargetDate: " + targetDate[START].toString() +
                     "\n" +
                     "EndTargetDate: " +
-                    targetDate[END].getTime() +
+                    targetDate[END].toString() +
                     "\n" +
                     "Start: " +
-                    start.getTime() +
+                    start.toString() +
                     "\n" +
                     "End: " +
-                    end.getTime());
+                    end.toString());
 
             return !(end.before(targetDate[START]) || start
                     .after(targetDate[END]));
@@ -311,12 +311,12 @@ public class TaskFilterManager {
         if (isStart) {
             currDate.set(currDate.get(Calendar.YEAR),
                     currDate.get(Calendar.MONTH),
-                    currDate.get(Calendar.DATE) - 1, START_TIME[HOUR],
+                    currDate.get(Calendar.DATE), START_TIME[HOUR],
                     START_TIME[MIN], START_TIME[SEC]);
         } else {
             currDate.set(currDate.get(Calendar.YEAR),
                     currDate.get(Calendar.MONTH),
-                    currDate.get(Calendar.DATE) + 1, END_TIME[HOUR],
+                    currDate.get(Calendar.DATE), END_TIME[HOUR],
                     END_TIME[MIN], END_TIME[SEC]);
         }
 
@@ -373,7 +373,6 @@ public class TaskFilterManager {
 
     }
 
-    // TODO change SortedSet to SortedMap when we move to Treemap.
     /**
      * Convert the Tasks TreeSet into an arraylist. Note: All tasks set must be
      * under the same superclass and iterable/has a way to iterate its elements.

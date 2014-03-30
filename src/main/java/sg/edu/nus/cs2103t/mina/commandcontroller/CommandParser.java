@@ -153,6 +153,7 @@ public class CommandParser {
         ACTIONS_KEYWORDS.put("finish", COMPLETE);
         
         SINGLE_ACTION_KEYWORD.put(EXIT, EXIT);
+        SINGLE_ACTION_KEYWORD.put("quit", EXIT);
         SINGLE_ACTION_KEYWORD.put(UNDO, UNDO);
         SINGLE_ACTION_KEYWORD.put(REDO, REDO);
         
@@ -769,11 +770,7 @@ public class CommandParser {
                 break;                
             case TIME_VALUE:
                 logger.info("Getting time: " + keyword);
-                if (hasAmPm(keyword)) {
-                    logger.info("Convering endTime");
-                    endTime = convertToMilitaryTime(keyword);
-                }
-                endTime = (endTime.equals(EMPTY)) ? keyword : endTime;
+                endTime = (endTime.equals(EMPTY)) ? convertToMilitaryTime(keyword) : endTime;
                 break;
             default:
                 logger.info("Invalid datetime");
@@ -809,6 +806,7 @@ public class CommandParser {
         
         //Check keyword
         if(END_VALUES.containsKey(dateTime)) {
+            logger.info(dateTime + " is special time keyword");
             return DATETIME_VALUE_KEYWORD;
         }
 
@@ -817,16 +815,20 @@ public class CommandParser {
         
         if(format!=null && (format.equals("ddMMyyyyHHmm") || 
                             format.equals("ddMMyyyyHHmmss"))){
+            logger.info(dateTime + "is military format date");
             return PROPER_DATE_TIME;
         } else if(format!=null) {
+            logger.info(dateTime + " is date but not in mil-format");
             return DATE_VALUE;
         }
         
         //check time
         if(isTimeFormat(dateTime)) {
+            logger.info(dateTime + " is time");
             return TIME_VALUE;
         }
         
+        logger.info(dateTime + " is invalid");
         return INVALID_VALUE;
     }
 
@@ -847,20 +849,33 @@ public class CommandParser {
     private String convertToMilitaryTime(String dateTime) throws ParseException{
         
         dateTime = dateTime.toLowerCase().trim();
-        
+        //Guard clause
+        logger.info("Converting " + dateTime + " to miltary date");
+        if(isMilitaryDate(dateTime)){
+            return dateTime;
+        }
         LinkedHashMap<String, String> timeMap = new LinkedHashMap<String, String>();
         
         //HH AM/PM
-        timeMap.put("^\\d{1}(am|pm)?$", "ha");
-        timeMap.put("^\\d{1,2}(am|pm)?$", "hha");
+        timeMap.put("^\\d{1}(am|pm){1}$", "ha");
+        timeMap.put("^\\d{1,2}(am|pm){1}$", "hha");
+        //HH no AM/PM
+        timeMap.put("^\\d{1}$", "h");
+        timeMap.put("^\\d{1,2}$", "hh");
         
         //HH:MM:SS AM/PM
-        timeMap.put("^\\d{1,2}:\\d{2}(am|pm)?", "hh:mma");
-        timeMap.put("^\\d{1,2}:\\d{2}:\\{d2}(am|pm)?", "hh:mm:ssa");
+        timeMap.put("^\\d{1,2}:\\d{2}(am|pm){1}", "hh:mma");
+        timeMap.put("^\\d{1,2}:\\d{2}:\\{d2}(am|pm){1}", "hh:mm:ssa");
+        //HH:MM:SS no AM/PM
+        timeMap.put("^\\d{1,2}:\\d{2}", "hh:mm");
+        timeMap.put("^\\d{1,2}:\\d{2}:\\{d2}", "hh:mm:ss");
         
         //HH.MM.SS AM/PM
-        timeMap.put("^\\d{1,2}.\\d{2}(am|pm)?", "hh.mma");
-        timeMap.put("^\\d{1,2}.\\d{2}.\\{d2}(am|pm)?", "hh.mm.ssa");
+        timeMap.put("^\\d{1,2}.\\d{2}(am|pm){1}", "hh.mma");
+        timeMap.put("^\\d{1,2}.\\d{2}.\\{d2}(am|pm){1}", "hh.mm.ssa");
+        //HH.MM.SS no AM/PM
+        timeMap.put("^\\d{1,2}.\\d{2}", "hh.mm");
+        timeMap.put("^\\d{1,2}.\\d{2}.\\{d2}", "hh.mm.ss");
         
         String pattern = "";
         boolean hasMatch = false;
@@ -898,6 +913,14 @@ public class CommandParser {
         }
         
         return dateTime;
+    }
+
+    private boolean isMilitaryDate(String dateTime) throws ParseException{
+        DateTime today = DateTime.today(TimeZone.getDefault());
+        String format = today.format("DDMMYYYY");
+        int dateType = getDateValueType(format+dateTime);
+        
+        return dateType==PROPER_DATE_TIME;
     }
 
     private boolean hasAmPm(String dateTime) {

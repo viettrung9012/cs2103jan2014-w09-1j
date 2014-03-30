@@ -56,6 +56,7 @@ public class CommandParserTest {
     private static final int HAS_NO_DATE_BUT_MILITARY_TIME = 9;
     private static final int HAS_DATE_24_AUG_2014_0900 = 10;
     private static final int HAS_DATE_25_AUG_2014_1200 = 11;
+    private static final int HAS_DATE_24_AUG_2014_2133 = 12;
     
     private static final int DEAFULT_END = 0;
     private static final int DUE_END = 1;
@@ -64,6 +65,7 @@ public class CommandParserTest {
     private static final int DEFAULT_START = 4;
     private static final int FROM_START = 5;
     private static final int STARTING_START = 6;
+   
     
     private static String addTodoControlLow, addTodoControlMed,
             addTodoControlHigh, addTodoControlNone,
@@ -71,7 +73,7 @@ public class CommandParserTest {
             addDeadlineControlNoDate, addDeadlineControlNoDateMorning,
             addDeadlineControlTodayNoTime, addDeadlineControlMonthTimeNoSecs,
             addEventControlADay, addEventControlDays, addEventControlMonths,
-            addEventControlYears;
+            addEventControlYears, addEventControlToday, addEventControlTomorrow;
     
     private static String displayControlType;
     
@@ -119,6 +121,13 @@ public class CommandParserTest {
         // start: 24th of August 2014 0900 - 24th of September 2017 1200
         addEventControlYears = "add meet friends -start 24082014090000 -end 24092017120000";
         
+        //start: today 9am - today 9.33pm
+        addEventControlToday = "add meet friends -start " + todayDateString + "090000 -end " + todayDateString + "213300";
+        
+        // start: tomorrow 0900 - tomorrow 2133
+        DateTime tomorrow = today.plusDays(1);
+        String tmrFormat = tomorrow.format("DDMMYYYY");
+        addEventControlTomorrow = "add meet friends -start " + tmrFormat + "090000 -end " + tmrFormat + "213300";
         //Basic type
         displayControlType = "display";
         
@@ -606,7 +615,7 @@ public class CommandParserTest {
      * @throws Exception
      */
     @Test
-    public void testAddDeadlinesDateFormat() throws Exception {
+    public void testAddDateFormat() throws Exception {
 
         logger.info("Today's date is: " + today.toString());
 
@@ -678,6 +687,27 @@ public class CommandParserTest {
         result = parser.convertCommand(variation);
         logger.info(variation);
         assertEquals(addDeadlineControlNoDate, result);
+        
+        //Testing implicit today
+        start = "-start today 9am";
+        end = "-end 9.33pm";
+        variation = getEventAddCmd(EVENT_DESCRIPTION, start, end, ORDER_EVENT_DES, !IS_WRAPPED); 
+        result = parser.convertCommand(variation);
+        logger.info(variation);
+        assertEquals(addEventControlToday, result);        
+        
+        start = "-start today 9:00";
+        end = "-end 21:33";
+        variation = getEventAddCmd(EVENT_DESCRIPTION, start, end, ORDER_EVENT_DES, !IS_WRAPPED); 
+        result = parser.convertCommand(variation);
+        logger.info(variation);
+        assertEquals(addEventControlToday, result);   
+        
+        //Testing implicit command.
+        //If start date is specified and end date is not specified, implicit
+        start = "-start tmr 8am";
+        end = "-end 9.33pm";
+        //addEventControlTomorrow
     }
 
     @Test
@@ -1026,7 +1056,8 @@ public class CommandParserTest {
                 return endType + " 24082014090000";
             case HAS_DATE_25_AUG_2014_1200:
                 return endType + " 25082014120000";
-            
+            case HAS_DATE_24_AUG_2014_2133:
+                return endType + " 24082014121330";
             
 //            // start: 24th of August 2014 0900 - 25th of August 2014 1200
 //            addEventControlADay = "add meet friends -start 24082014090000 -end 25082014120000";
