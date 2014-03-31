@@ -1,6 +1,7 @@
 package sg.edu.nus.cs2103t.mina.commandcontroller;
 
 import hirondelle.date4j.DateTime;
+import hirondelle.date4j.DateTime.DayOverflow;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -52,6 +53,10 @@ public class CommandParser {
     private static final String TIME_KEY = "time";
     private static final String DATE_KEY = "date";
     private static final int NEXT = 1;
+    
+    private static final Integer ONE_YEAR = 1;
+    private static final Integer ONE_MONTH = 1;
+    private static final Integer ONE_WEEK = 7;
     private static final int ONE_DAY = 1;
     
     private static final int ACTION_INDEX = 0;
@@ -102,8 +107,16 @@ public class CommandParser {
     private static final int ARG_INDEX = 1;
     private static final int LAST = 1;
     private static final boolean IS_WHOLE_SEGMENT = true;
+   
+
     
-    
+    private static final Integer NO_YEAR = 0;
+    private static final Integer NO_MONTH = 0;
+    private static final Integer NO_DAY = 0;
+    private static final Integer NO_HOUR = 0;
+    private static final Integer NO_MIN = 0;
+    private static final Integer NO_SEC = 0;
+    private static final Integer NO_NANO_SEC = 0;
     
     
     private HashMap<String, String> _arguments;
@@ -195,7 +208,6 @@ public class CommandParser {
         PRIORITY_VALUES.put("urgent", "H");
         PRIORITY_VALUES.put("-urgent", "H");
         
-        
         initEndValues();
         
         TASKTYPE_ALIAS.put(TaskType.EVENT.getType(), TaskType.EVENT.getType());
@@ -230,6 +242,13 @@ public class CommandParser {
         END_VALUES.put("tmr", today.plusDays(ONE_DAY));
         END_VALUES.put("tommorrow", today.plusDays(ONE_DAY)); 
         END_VALUES.put("yesterday", today.minusDays(ONE_DAY));
+        
+        END_VALUES.put("next\\syear", today.plus(ONE_YEAR, NO_MONTH, NO_DAY, NO_HOUR, NO_MIN, NO_SEC, NO_NANO_SEC, DayOverflow.Spillover));
+        END_VALUES.put("next\\smonth", today.plus(NO_YEAR, ONE_MONTH, NO_DAY, NO_HOUR, NO_MIN, NO_SEC, NO_NANO_SEC, DayOverflow.Spillover));
+        END_VALUES.put("next\\sweek", today.plus(NO_YEAR, NO_MONTH, ONE_WEEK, NO_HOUR, NO_MIN, NO_SEC, NO_NANO_SEC, DayOverflow.Spillover));
+        END_VALUES.put("next\\sday", today.plus(NO_YEAR, NO_MONTH, ONE_DAY, NO_HOUR, NO_MIN, NO_SEC, NO_NANO_SEC, DayOverflow.Spillover));
+        
+        END_VALUES.put("next\\s\\d*?\\s(day)", today);
     }
 
     public String convertCommand(String userInput) throws NullPointerException,
@@ -262,7 +281,7 @@ public class CommandParser {
         
         //short circuit, if the action needs no argument
         if(SINGLE_ACTION_KEYWORD.containsKey(action)) {
-            return userInput;
+            return SINGLE_ACTION_KEYWORD.get(action);
         }
         
         if (ACTIONS_KEYWORDS.containsKey(action)) {
@@ -791,7 +810,7 @@ public class CommandParser {
         String converted;
         SimpleDateFormat milDateFormat = new SimpleDateFormat("ddMMyyyy");
         
-        if(END_VALUES.containsKey(date)) {
+        if(hasInformalDate(date)) {
             DateTime currDate = END_VALUES.get(date);
             converted = currDate.format("DDMMYYYY");
         } else if( isPartialDate(date) ) {
@@ -835,7 +854,7 @@ public class CommandParser {
     private int getDateValueType(String dateTime) throws ParseException{
         
         //Check keyword
-        if(END_VALUES.containsKey(dateTime)) {
+        if(hasInformalDate(dateTime)) {
             logger.info(dateTime + " is special time keyword");
             return DATETIME_VALUE_KEYWORD;
         }
@@ -1030,7 +1049,7 @@ public class CommandParser {
         //refresh the time
         initEndValues();
         
-        if(!END_VALUES.containsKey(dateTimeTokens[0])) {
+        if(!hasInformalDate(dateTimeTokens[0])) {
             throw new ParseException("No such date: " + dateTimeTokens[0],0);
         }
         
@@ -1115,6 +1134,23 @@ public class CommandParser {
     }
     public String getFormattedValue(String key) {
         return _arguments.get(key) + SPACE;
+    }
+    
+    private boolean hasInformalDate(String date){
+        
+        return getInformalDate(date) != null;
+    }
+    
+    private DateTime getInformalDate(String date) {
+        
+        initEndValues();
+        
+        for (String regex: END_VALUES.keySet()) {
+            if (date.matches(regex)) {
+                return END_VALUES.get(regex);
+            }
+        }
+        return null;
     }
 
     private void initArgMap() {
