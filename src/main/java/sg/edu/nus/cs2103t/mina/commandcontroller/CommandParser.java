@@ -56,6 +56,7 @@ public class CommandParser {
     private static final String EVERY_WEEK = "week";
     private static final String EVERY_MONTH = "month";
     private static final String EVERY_YEAR = "year";
+    private static final String EVERY_HOUR = "hour";
     
     private static final int NEXT = 1;
     
@@ -168,6 +169,8 @@ public class CommandParser {
         ACTIONS_KEYWORDS.put("edit", MODIFY);
         
         ACTIONS_KEYWORDS.put("remove", DELETE);
+        ACTIONS_KEYWORDS.put("rm", DELETE);
+        ACTIONS_KEYWORDS.put("-", DELETE);
         ACTIONS_KEYWORDS.put(DELETE, DELETE);
         
         ACTIONS_KEYWORDS.put(SEARCH, SEARCH);
@@ -265,14 +268,19 @@ public class CommandParser {
         RECURRING_VALUES.put(EVERY_WEEK, EVERY_WEEK);
         RECURRING_VALUES.put(EVERY_MONTH, EVERY_MONTH);
         RECURRING_VALUES.put(EVERY_YEAR, EVERY_YEAR);
+        RECURRING_VALUES.put(EVERY_HOUR, EVERY_HOUR);
+        
         RECURRING_VALUES.put("daily", EVERY_DAY);
         RECURRING_VALUES.put("weekly", EVERY_WEEK);
         RECURRING_VALUES.put("monthly", EVERY_MONTH);
+        RECURRING_VALUES.put("hourly", EVERY_HOUR);
+        
         RECURRING_VALUES.put("yearly", EVERY_YEAR);
         RECURRING_VALUES.put("-daily", EVERY_DAY);
         RECURRING_VALUES.put("-weekly", EVERY_WEEK);
         RECURRING_VALUES.put("-monthly", EVERY_MONTH);
         RECURRING_VALUES.put("-yearly", EVERY_YEAR);
+        RECURRING_VALUES.put("-hourly", EVERY_HOUR);
         
         UNITL_KEYWORDS.put(UNTIL, false);
         UNITL_KEYWORDS.put("-until", true);
