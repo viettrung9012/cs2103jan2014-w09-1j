@@ -239,18 +239,17 @@ public class TaskDataManager {
         }
 
     }
-    
 
     private void checkBlock(EventTask currEventTask) {
         if (currEventTask.getTag().contains("BLOCK")) {
-            includeInBlockMap(currEventTask, currEventTask.getTag());   
+            includeInBlockMap(currEventTask, currEventTask.getTag());
         }
     }
 
     private void checkRecur(Task<?> currTask) {
         if (currTask.getTag().contains("RECUR")) {
             includeInRecurMap(currTask, currTask.getTag());
-            
+
         }
     }
 
@@ -507,7 +506,7 @@ public class TaskDataManager {
         EventTask newEventTask = createEventTask(addParameter);
         if (_uncompletedEventTasks.add(newEventTask)) {
             syncUncompletedTasks(TaskType.EVENT);
-            
+
             return newEventTask;
         }
         return null;
@@ -551,46 +550,69 @@ public class TaskDataManager {
         if (deleteParameters.getTaskObject().getTag().contains("RECUR")) {
             assert (deleteParameters.getNewTaskType().equals(TaskType.EVENT) || deleteParameters
                     .getNewTaskType().equals(TaskType.DEADLINE));
-            
+
             return deleteRecurringTasks(deleteParameters);
-            
+
         } else if (deleteParameters.getTaskObject().getTag().contains("BLOCK")) {
             assert (deleteParameters.getNewTaskType().equals(TaskType.EVENT));
-            
+
             return deleteBlockTasks(deleteParameters);
-            
+
         } else {
             return deleteRegTask(deleteParameters);
-            
+
         }
     }
 
     private Task<?> deleteRecurringTasks(DataParameter deleteParameters) {
         Task<?> recurTaskToDelete = deleteParameters.getTaskObject();
-        
+
         if (_recurringTasks.containsKey(recurTaskToDelete.getTag())) {
-            List<Task<?>> listOfRecTasks = _recurringTasks.remove(recurTaskToDelete.getTag());
-            
+            List<Task<?>> listOfRecTasks = _recurringTasks
+                    .remove(recurTaskToDelete.getTag());
+
             if (deleteParameters.isModifyAll()) {
                 while (!listOfRecTasks.isEmpty()) {
                     deleteParameters.setTaskObject(listOfRecTasks.remove(0));
                     deleteRegTask(deleteParameters);
                 }
             } else {
-                List<Task<?>> tempListOfRecTasks = _recurringTasks.remove(recurTaskToDelete.getTag());
+                List<Task<?>> tempListOfRecTasks = _recurringTasks
+                        .remove(recurTaskToDelete.getTag());
                 tempListOfRecTasks.remove(deleteParameters.getTaskObject());
                 deleteRegTask(deleteParameters);
-            }            
-            
+            }
+
             return recurTaskToDelete;
         } else {
             return null;
         }
     }
 
-    private Task<?> deleteBlockTasks(DataParameter deleteParameters) {
-        // TODO Auto-generated method stub
-        return null;
+    private EventTask deleteBlockTasks(DataParameter deleteParameters) {
+        EventTask blockTaskToDelete = (EventTask) deleteParameters
+                .getTaskObject();
+
+        if (_blockTasks.containsKey(blockTaskToDelete.getTag())) {
+            List<EventTask> listOfBlockTasks = _blockTasks
+                    .remove(blockTaskToDelete.getTag());
+
+            if (deleteParameters.isModifyAll()) {
+                while (!listOfBlockTasks.isEmpty()) {
+                    deleteParameters.setTaskObject(listOfBlockTasks.remove(0));
+                    deleteRegTask(deleteParameters);
+                }
+            } else {
+                List<EventTask> tempListOfBlockTasks = _blockTasks
+                        .remove(blockTaskToDelete.getTag());
+                tempListOfBlockTasks.remove(deleteParameters.getTaskObject());
+                deleteRegTask(deleteParameters);
+            }
+
+            return blockTaskToDelete;
+        } else {
+            return null;
+        }
     }
 
     private Task<?> deleteRegTask(DataParameter deleteParameters) {
