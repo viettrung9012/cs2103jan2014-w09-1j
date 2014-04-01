@@ -119,6 +119,7 @@ public class MinaDriver {
         } catch (Exception e) {
             logger.error(e, e);
             taskDataManager.saveAllTasks();
+            System.exit(-1);
         }
     }
 }
