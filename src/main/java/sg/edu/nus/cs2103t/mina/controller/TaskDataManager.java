@@ -351,9 +351,11 @@ public class TaskDataManager {
      */
     public Task<?> addTask(DataParameter addParameters) {
         assert (addParameters.getNewTaskType() != null);
-
-        if (addParameters.getTag() != null && addParameters.getTag().equals(
-                "RECUR")) {
+        if (addParameters.getTaskObject() != null) {
+            return directAddTask(addParameters.getTaskObject());
+            
+        } else if (addParameters.getTag() != null && addParameters.getTag()
+                .equals("RECUR")) {
             assert (addParameters.getNewTaskType().equals(TaskType.EVENT) || addParameters
                     .getNewTaskType().equals(TaskType.DEADLINE));
 
@@ -370,6 +372,35 @@ public class TaskDataManager {
         }
     }
 
+    private Task<?> directAddTask(Task<?> taskObject) {
+        switch (taskObject.getType()) {
+            case TODO :
+                if (_uncompletedTodoTasks.add((TodoTask) taskObject)) {
+                    syncUncompletedTasks(TaskType.TODO);
+
+                    return taskObject;
+                }
+                return null;
+            case DEADLINE :
+                if (_uncompletedDeadlineTasks.add((DeadlineTask) taskObject)) {
+                    syncUncompletedTasks(TaskType.DEADLINE);
+
+                    return taskObject;
+                }
+                return null;
+            case EVENT :
+                if (_uncompletedEventTasks.add((EventTask) taskObject)) {
+                    syncUncompletedTasks(TaskType.EVENT);
+
+                    return taskObject;
+                }
+                return null;
+
+            default :
+                return null;
+        }
+    }
+
     private Task<?> addRecurringTask(DataParameter addParameters) {
         String recurTag = "RECUR_" + _maxRecurTagInt++;
 
@@ -383,7 +414,7 @@ public class TaskDataManager {
             case DEADLINE :
                 Date currDeadline = addParameters.getEndDate();
 
-                while (currDeadline.compareTo(endRecurOn) < 0) {
+                while (currDeadline.compareTo(endRecurOn) <= 0) {
                     includeInRecurMap(addDeadlineTask(addParameters), recurTag);
 
                     currDeadline = updateDate(currDeadline,
