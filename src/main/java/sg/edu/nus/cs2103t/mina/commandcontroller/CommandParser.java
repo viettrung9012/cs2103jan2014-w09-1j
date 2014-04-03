@@ -16,17 +16,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Stack;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +29,7 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import sg.edu.nus.cs2103t.mina.commandcontroller.keyword.StandardKeyword;
 import sg.edu.nus.cs2103t.mina.model.FilterType;
 import sg.edu.nus.cs2103t.mina.model.TaskType;
 import sg.edu.nus.cs2103t.mina.utils.DateUtil;
@@ -52,7 +48,6 @@ public class CommandParser {
     private static final String DISPLAY = "display";
     private static final String DELETE = "delete";
     private static final String ADD = "add";
-    private static final String TASKID = "taskid";
     private static final String MODIFY = "modify";
     private static final String VALIDITY = "v";
     private static final String IS_VALID = "valid";
@@ -75,17 +70,18 @@ public class CommandParser {
     private static final int ONE_DAY = 1;
     
     private static final int ACTION_INDEX = 0;
+    private static final String SPACE = " ";
     
     //Specifying argument keys
-    private static final String SPACE = " ";
-    private static final String ACTION = "action";
-    private static final String PRIORITY = "priority";
-    private static final String DESCRIPTION = "description";
-    private static final String END = "end";
-    private static final String START = "start";
-    private static final String TO_TASK_TYPE = "totype";
-    private static final String RECURRING = "every";
-    private static final String UNTIL = "until";
+    private static final StandardKeyword ACTION = StandardKeyword.ACTION;
+    private static final StandardKeyword TASKID = StandardKeyword.TASKID;
+    private static final StandardKeyword PRIORITY = StandardKeyword.PRIORITY;
+    private static final StandardKeyword DESCRIPTION = StandardKeyword.DESCRIPTION;
+    private static final StandardKeyword END = StandardKeyword.END;
+    private static final StandardKeyword START = StandardKeyword.START;
+    private static final StandardKeyword TO_TASK_TYPE = StandardKeyword.TO_TASK_TYPE;
+    private static final StandardKeyword RECURRING = StandardKeyword.RECURRING;
+    private static final StandardKeyword UNTIL = StandardKeyword.UNTIL;
     
     private static final HashMap<String, String> ACTIONS_KEYWORDS = new HashMap<String, String>();
     private static final HashMap<String, String> SINGLE_ACTION_KEYWORD = new HashMap<String, String>();
@@ -132,7 +128,7 @@ public class CommandParser {
     private static final int LAST = 1;
     private static final boolean IS_WHOLE_SEGMENT = true;
    
-
+    private static final int LOOKAHEAD_LIMIT = 5;
     
     private static final Integer NO_YEAR = 0;
     private static final Integer NO_MONTH = 0;
@@ -142,10 +138,7 @@ public class CommandParser {
     private static final Integer NO_SEC = 0;
     private static final Integer NO_NANO_SEC = 0;
     
-    
-
-    
-    private LinkedHashMap<String, String> _arguments;
+    private LinkedHashMap<StandardKeyword, String> _arguments;
     
     private enum ActionsTaskID{
         MODIFY(CommandParser.MODIFY),
@@ -292,7 +285,7 @@ public class CommandParser {
         RECURRING_VALUES.put("-yearly", EVERY_YEAR);
         RECURRING_VALUES.put("-hourly", EVERY_HOUR);
         
-        UNITL_KEYWORDS.put(UNTIL, false);
+        UNITL_KEYWORDS.put("until", false);
         UNITL_KEYWORDS.put("-until", true);
     }
 
@@ -393,7 +386,34 @@ public class CommandParser {
         
         logger.info("Original: " + userInput);
         StringBuilder description = new StringBuilder();
-        for (int i = 0; i < dTokens.size(); i++) {
+        
+        //TODO new parsing
+//        for (int i = 0; i < dTokens.size(); i++) {
+//            
+//            String segment = getSegment(dTokens, i);
+//            String keyword = dTokens.get(i).toLowerCase();
+//            
+//            if (keyword.equals(PRIORITY.getKeyword()) && !hasValue(PRIORITY) && isWrapped) {
+//                logger.info("Checking priority");
+//                int prevIndex = i - 1;
+//                if (prevIndex>=0 && isValidPriorityValue(dTokens.get(prevIndex)) ) {
+//                    addPriority(dTokens.get(prevIndex));
+//                    continue;
+//                } else {
+//                    keyFlags.put(PRIORITY_FLAG, true);
+//                    continue;
+//                }
+//            }
+//
+//            if (keyword.equals("-priority") && !hasValue(PRIORITY)) {
+//                keyFlags.put(PRIORITY_FLAG, true);
+//                continue;
+//            }
+//        }
+        
+        //XXX Old parsing
+        boolean skipOld = false;
+        for (int i = 0; i < dTokens.size() && !skipOld; i++) {
            
             String keyword = dTokens.get(i).toLowerCase();
             
@@ -571,7 +591,8 @@ public class CommandParser {
                    
             
             //Checking for flags
-            if (keyword.equals(PRIORITY) && !hasValue(PRIORITY) && isWrapped) {
+            if (keyword.equals(PRIORITY.getKeyword()) && !hasValue(PRIORITY) && isWrapped) {
+                logger.info("Checking priority");
                 int prevIndex = i - 1;
                 if (prevIndex>=0 && isValidPriorityValue(dTokens.get(prevIndex)) ) {
                     addPriority(dTokens.get(prevIndex));
@@ -667,6 +688,7 @@ public class CommandParser {
             }
         }
         
+        //XXX end old parsing
         if (!hasValue(DESCRIPTION)) {
             String descript =  description.toString().trim();
             if(!descript.equals(EMPTY)){
@@ -680,8 +702,20 @@ public class CommandParser {
         return result.toString().trim();
     }
 
+    private String getSegment(ArrayList<String> dTokens, int index) {
+        
+        StringBuilder segment = new StringBuilder();
+        for (int i=index; i<LOOKAHEAD_LIMIT && i<dTokens.size(); i++) {
+            segment.append(dTokens.get(i));
+            segment.append(SPACE);
+        }
+        
+        return segment.toString().trim();
+    }
+
     private boolean isKeywordEvery(String keyword) {
-        return keyword.equalsIgnoreCase(RECURRING) || keyword.equalsIgnoreCase("-" + RECURRING);
+        return keyword.equalsIgnoreCase(RECURRING.getKeyword()) || 
+                keyword.equalsIgnoreCase(RECURRING.getFormattedKeyword());
     }
 
     private String convertToSearch(String rawTokens) {
@@ -1131,7 +1165,7 @@ public class CommandParser {
         return dateTime.toLowerCase().contains(AM) || dateTime.toLowerCase().contains(PM);
     }
     
-    private void addTime(String timeArg, String dateTime)  throws ParseException{
+    private void addTime(StandardKeyword timeArg, String dateTime)  throws ParseException{
         dateTime = dateTime.trim();
         dateTime = translateDateTime(dateTime);
         
@@ -1223,15 +1257,16 @@ public class CommandParser {
     }
     
     private StringBuilder getProperCommands() {
+        
         StringBuilder result = new StringBuilder();
-        logger.info("Building proper commands\n" + 
-                    "Action: " + getFormattedValue(ACTION) + "\n" + 
-                    "Description: " + getFormattedValue(DESCRIPTION) + "\n" + 
-                    "Priority: " + getFormattedValue(PRIORITY) + "\n" +
-                    "Start: " + getFormattedValue(START)+ "\n" +
-                    "End: " + getFormattedValue(END) + "\n" + 
-                    "Every: " + getFormattedValue(RECURRING) + "\n" + 
-                    "Until: " + getFormattedValue(UNTIL));
+        StringBuilder commandLog = new StringBuilder();
+        
+        commandLog.append("Building proper commands: \n");
+        for (StandardKeyword keyword: _arguments.keySet()) {
+            commandLog.append(keyword + ": " + getFormattedValue(keyword) + "\n");
+        }
+        
+        logger.info(commandLog.toString());
         
         result.append(getFormattedValue(ACTION));
         
@@ -1288,15 +1323,15 @@ public class CommandParser {
         return _arguments.get(ACTION).equalsIgnoreCase(MODIFY);
     }
 
-    public String getFormattedKey(String key){
-        return "-" + key + " ";
+    public String getFormattedKey(StandardKeyword key){
+        return key.getFormattedKeyword() + SPACE;
     }
-    public String getFormattedValue(String key) {
+    
+    public String getFormattedValue(StandardKeyword key) {
         return _arguments.get(key) + SPACE;
     }
     
     private boolean hasInformalDate(String date){
-        
         return getInformalDate(date) != null;
     }
     
@@ -1313,24 +1348,13 @@ public class CommandParser {
     }
 
     private void initArgMap() {
-
-        _arguments = new LinkedHashMap<String, String>();
-        
-        
-        
-        _arguments.put(ACTION, null);
-        _arguments.put(TASKID, null);
-        _arguments.put(TO_TASK_TYPE, null);
-        _arguments.put(DESCRIPTION, null);
-        _arguments.put(START, null);
-        _arguments.put(END, null);
-        _arguments.put(RECURRING, null);
-        _arguments.put(UNTIL, null);
-        _arguments.put(PRIORITY, null);
-
+        _arguments = new LinkedHashMap<StandardKeyword, String>();
+        for (StandardKeyword type: StandardKeyword.values()) {
+            _arguments.put(type, null);
+        }
     }
     
-    private boolean hasValue(String key) {
+    private boolean hasValue(StandardKeyword key) {
         return _arguments.get(key) != null;
     }
 }
