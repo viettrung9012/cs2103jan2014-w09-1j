@@ -76,7 +76,11 @@ public abstract class Task<T> implements Comparable<T>, Serializable {
         int priorityComparedResult = comparePriority(_priority,
                 otherTask._priority);
         if (priorityComparedResult == 0) {
-            return _description.compareTo(otherTask._description);
+            if (_tag.compareTo(otherTask._tag) == 0) {
+                return _description.compareTo(otherTask._description);
+            } else {
+                return _tag.compareTo(otherTask._tag);
+            }
         }
         return priorityComparedResult;
     }
@@ -154,13 +158,14 @@ public abstract class Task<T> implements Comparable<T>, Serializable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(_type);
-        sb.append(" task: ");
+        sb.append(" (tag: ");
+        sb.append(_tag);
+        sb.append(", description: ");
         sb.append(_description);
-        sb.append(" priority (");
+        sb.append(", priority: ");
         sb.append(_priority);
-        sb.append(")");
-        //sb.append(") done? (");
-        //sb.append(_isCompleted ? "yes)" : "no)");
+        sb.append(", completed: ");
+        sb.append(_isCompleted ? "yes)" : "no)");
         //sb.append(" last modified: ");
         //sb.append(_lastEditedTime);
         return sb.toString();

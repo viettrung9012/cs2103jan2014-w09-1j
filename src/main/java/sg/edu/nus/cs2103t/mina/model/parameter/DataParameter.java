@@ -125,7 +125,7 @@ public class DataParameter {
     public DataParameter(String des, char pri, Date start, Date end,
             TaskType origType, TaskType newType, int id, String tag,
             Date endRecurOn, String timeType, int freqOfTimeType,
-            List<TimePair> timeSlots, boolean isModifyAll) throws Exception {
+            List<TimePair> timeSlots) throws Exception {
         assert (!tag.equals(null));
 
         if (tag.equals("BLOCK")) {
@@ -149,17 +149,18 @@ public class DataParameter {
             TaskType origType, TaskType newType, int id, Task<?> taskObj,
             String tag, String timeType, int freqOfTimeType, Date endRecurOn,
             List<TimePair> timeSlots, boolean isModifyAll) throws Exception {
-        assert (!tag.equals(null));
 
-        if (tag.equals("BLOCK")) {
-            assert (!origType.equals(null) && origType.equals(TaskType.EVENT) || !newType
-                    .equals(null) && newType.equals(TaskType.EVENT));
+        if (taskObj.getTag().contains("BLOCK")) {
+            assert (!taskObj.getType().equals(null) && taskObj.getType()
+                    .equals(TaskType.EVENT) || !newType.equals(null) && newType
+                    .equals(TaskType.EVENT));
             createBlockParameters(des, pri, start, end, origType, newType, id,
                     taskObj, tag, timeSlots, isModifyAll);
 
-        } else if (tag.equals("RECUR")) {
-            assert (!origType.equals(null) && !origType.equals(TaskType.TODO) || !newType
-                    .equals(null) && !newType.equals(TaskType.TODO));
+        } else if (taskObj.getTag().contains("RECUR")) {
+            assert (!taskObj.getType().equals(null) && !taskObj.getType()
+                    .equals(TaskType.TODO) || !newType.equals(null) && !newType
+                    .equals(TaskType.TODO));
             createRecurParameters(des, pri, start, end, origType, newType, id,
                     taskObj, tag, timeType, freqOfTimeType, endRecurOn,
                     isModifyAll);
@@ -202,7 +203,9 @@ public class DataParameter {
         setOriginalTaskType(origType);
         setNewTaskType(newType);
         setTaskID(id);
-
+        
+        setTaskObject(taskObj);
+        
         // parameters specific to EventTask
         EventTask eventTaskObj = (EventTask) taskObj;
         setEndDate(end == null ? eventTaskObj.getEndTime() : end);
