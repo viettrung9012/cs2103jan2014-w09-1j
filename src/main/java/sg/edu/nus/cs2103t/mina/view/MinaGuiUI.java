@@ -39,8 +39,8 @@ import sg.edu.nus.cs2103t.mina.model.Task;
 import sg.edu.nus.cs2103t.mina.model.TaskType;
 import sg.edu.nus.cs2103t.mina.model.TaskView;
 import sg.edu.nus.cs2103t.mina.model.TodoTask;
+import sg.edu.nus.cs2103t.mina.utils.ConfigHelper;
 import sg.edu.nus.cs2103t.mina.utils.DateUtil;
-import sg.edu.nus.cs2103t.mina.utils.ProgressBarDialog;
 
 import com.tulskiy.keymaster.common.HotKey;
 import com.tulskiy.keymaster.common.HotKeyListener;
@@ -54,19 +54,23 @@ public class MinaGuiUI extends MinaView {
     private static final String EMPTY_STRING = "";
     private static final String TRAY_TEXT = "MINA";
 
+    private static final String BUSY = "Processing command ... ";
+    private static final String ERROR = "Operation failed. Please try again.";
+    private static final String INVALID_COMMAND = "Invalid command. Please re-enter.";
+    private static final String SUCCESS = "Operation completed.";
+
     private TaskView _taskView;
 
     private Calendar _today;
     private Calendar _tomorrow;
 
     private AutoCompleteDB _autoComplete;
-    private ProgressBarDialog _progressDialog;
 
     private Shell _shell;
     private Display _display;
     private Image _trayImage;
     private Tray _tray;
-    
+
     private StyledText _helpWindowBorder;
     private StyledText _helpWindow;
     private UICommandHelper _help;
@@ -112,36 +116,12 @@ public class MinaGuiUI extends MinaView {
 
     private int SHELL_WIDTH;
     private int SHELL_HEIGHT;
-    
+
     private String UI_FONT;
     private int UI_FONT_SIZE;
 
-    private static final String ERROR = "Operation failed. Please try again.";
-    private static final String INVALID_COMMAND = "Invalid command. Please re-enter.";
-    private static final String SUCCESS = "Operation completed";
-
     private static Logger logger = LogManager.getLogger(MinaGuiUI.class
             .getName());
-
-    void showProgressDialog() {
-        if (_progressDialog == null) {
-            _progressDialog = new ProgressBarDialog(_shell);
-        }
-        _progressDialog.open();
-    }
-
-    void setProgress(int progress) {
-        if (_progressDialog != null) {
-            _progressDialog.updateProgress(progress);
-        }
-    }
-
-    void closeProgressDialog() {
-        if (_progressDialog != null) {
-            _progressDialog.killDialog();
-            _progressDialog = null;
-        }
-    }
 
     public MinaGuiUI(CommandManager commandController) {
         super(commandController);
@@ -189,8 +169,8 @@ public class MinaGuiUI extends MinaView {
      */
     private void createTray() {
         _tray = _display.getSystemTray();
-        // TODO: change to our icon
-        _trayImage = new Image(_display, 16, 16);
+        _trayImage = new Image(_display, getClass().getResourceAsStream(
+                ConfigHelper.getProperty(ConfigHelper.ICONPATH_KEY)));
 
         TrayItem item;
         if (_tray == null) {
@@ -262,10 +242,10 @@ public class MinaGuiUI extends MinaView {
 
         SHELL_HEIGHT = 580;
         logger.log(Level.INFO, "width" + SHELL_WIDTH);
-        
+
         UI_FONT = "Trebuchet MS";
-        UI_FONT_SIZE = (SHELL_WIDTH==1096)?15:14;
-        
+        UI_FONT_SIZE = (SHELL_WIDTH == 1096) ? 15 : 14;
+
         _autoComplete = new AutoCompleteDB();
 
         _commandHistory = new LinkedList<String>();
@@ -297,13 +277,12 @@ public class MinaGuiUI extends MinaView {
         _shell.setBackground(SWTResourceManager.getColor(0, 0, 0));
         _shell.setSize(SHELL_WIDTH, SHELL_HEIGHT);
         _shell.setText("MINA");
-        
+
         _helpWindow = new StyledText(_shell, SWT.NONE | SWT.WRAP);
         _helpWindow.setDoubleClickEnabled(false);
         _helpWindow.setEnabled(false);
         _helpWindow.setEditable(false);
-        _helpWindow.setForeground(SWTResourceManager
-                .getColor(SWT.COLOR_WHITE));
+        _helpWindow.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
         _helpWindow.setFont(SWTResourceManager.getFont(UI_FONT, UI_FONT_SIZE,
                 SWT.NORMAL));
         _helpWindow.setBackground(SWTResourceManager.getColor(89, 89, 89));
@@ -312,15 +291,16 @@ public class MinaGuiUI extends MinaView {
         _helpWindowBorder.setDoubleClickEnabled(false);
         _helpWindowBorder.setEnabled(false);
         _helpWindowBorder.setEditable(false);
-        _helpWindowBorder.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
-        
-        _helpWindowBorder.setBounds(0, 0, SHELL_WIDTH, SHELL_HEIGHT-40);
-        _helpWindow.setBounds(5, 5, SHELL_WIDTH-10, SHELL_HEIGHT-50);
-        
+        _helpWindowBorder.setBackground(SWTResourceManager
+                .getColor(SWT.COLOR_BLACK));
+
+        _helpWindowBorder.setBounds(0, 0, SHELL_WIDTH, SHELL_HEIGHT - 40);
+        _helpWindow.setBounds(5, 5, SHELL_WIDTH - 10, SHELL_HEIGHT - 50);
+
         _helpWindowBorder.setVisible(false);
         _helpWindow.setVisible(false);
         _help = new UICommandHelper();
-        
+
         _statusBar = new Label(_shell, SWT.NONE);
         _statusBar.setFont(SWTResourceManager.getFont(UI_FONT, UI_FONT_SIZE,
                 SWT.NORMAL));
@@ -360,24 +340,24 @@ public class MinaGuiUI extends MinaView {
         _todoNextPage = new Label(_shell, SWT.NONE);
         _todoNextPage.setForeground(SWTResourceManager
                 .getColor(SWT.COLOR_WHITE));
-        _todoNextPage.setFont(SWTResourceManager.getFont(UI_FONT, 20,
-                SWT.BOLD));
+        _todoNextPage
+                .setFont(SWTResourceManager.getFont(UI_FONT, 20, SWT.BOLD));
         _todoNextPage.setBackground(SWTResourceManager.getColor(89, 89, 89));
         _todoNextPage.setAlignment(SWT.CENTER);
 
         _todoPrevPage = new Label(_shell, SWT.NONE);
         _todoPrevPage.setForeground(SWTResourceManager
                 .getColor(SWT.COLOR_WHITE));
-        _todoPrevPage.setFont(SWTResourceManager.getFont(UI_FONT, 20,
-                SWT.BOLD));
+        _todoPrevPage
+                .setFont(SWTResourceManager.getFont(UI_FONT, 20, SWT.BOLD));
         _todoPrevPage.setBackground(SWTResourceManager.getColor(89, 89, 89));
         _todoPrevPage.setAlignment(SWT.CENTER);
 
         _deadlinePrevPage = new Label(_shell, SWT.NONE);
         _deadlinePrevPage.setForeground(SWTResourceManager
                 .getColor(SWT.COLOR_WHITE));
-        _deadlinePrevPage.setFont(SWTResourceManager.getFont(UI_FONT,
-                20, SWT.BOLD));
+        _deadlinePrevPage.setFont(SWTResourceManager.getFont(UI_FONT, 20,
+                SWT.BOLD));
         _deadlinePrevPage
                 .setBackground(SWTResourceManager.getColor(89, 89, 89));
         _deadlinePrevPage.setAlignment(SWT.CENTER);
@@ -385,8 +365,8 @@ public class MinaGuiUI extends MinaView {
         _deadlineNextPage = new Label(_shell, SWT.NONE);
         _deadlineNextPage.setForeground(SWTResourceManager
                 .getColor(SWT.COLOR_WHITE));
-        _deadlineNextPage.setFont(SWTResourceManager.getFont(UI_FONT,
-                20, SWT.BOLD));
+        _deadlineNextPage.setFont(SWTResourceManager.getFont(UI_FONT, 20,
+                SWT.BOLD));
         _deadlineNextPage
                 .setBackground(SWTResourceManager.getColor(89, 89, 89));
         _deadlineNextPage.setAlignment(SWT.CENTER);
@@ -394,16 +374,16 @@ public class MinaGuiUI extends MinaView {
         _eventPrevPage = new Label(_shell, SWT.NONE);
         _eventPrevPage.setForeground(SWTResourceManager
                 .getColor(SWT.COLOR_WHITE));
-        _eventPrevPage.setFont(SWTResourceManager.getFont(UI_FONT, 20,
-                SWT.BOLD));
+        _eventPrevPage.setFont(SWTResourceManager
+                .getFont(UI_FONT, 20, SWT.BOLD));
         _eventPrevPage.setBackground(SWTResourceManager.getColor(89, 89, 89));
         _eventPrevPage.setAlignment(SWT.CENTER);
 
         _eventNextPage = new Label(_shell, SWT.NONE);
         _eventNextPage.setForeground(SWTResourceManager
                 .getColor(SWT.COLOR_WHITE));
-        _eventNextPage.setFont(SWTResourceManager.getFont(UI_FONT, 20,
-                SWT.BOLD));
+        _eventNextPage.setFont(SWTResourceManager
+                .getFont(UI_FONT, 20, SWT.BOLD));
         _eventNextPage.setBackground(SWTResourceManager.getColor(89, 89, 89));
         _eventNextPage.setAlignment(SWT.CENTER);
 
@@ -423,8 +403,8 @@ public class MinaGuiUI extends MinaView {
         _deadlineListUI.setEditable(false);
         _deadlineListUI.setForeground(SWTResourceManager
                 .getColor(SWT.COLOR_WHITE));
-        _deadlineListUI.setFont(SWTResourceManager.getFont(UI_FONT, UI_FONT_SIZE,
-                SWT.NORMAL));
+        _deadlineListUI.setFont(SWTResourceManager.getFont(UI_FONT,
+                UI_FONT_SIZE, SWT.NORMAL));
         _deadlineListUI.setBackground(SWTResourceManager.getColor(89, 89, 89));
 
         _todoListUI = new StyledText(_shell, SWT.NONE | SWT.WRAP);
@@ -434,19 +414,20 @@ public class MinaGuiUI extends MinaView {
         _todoListUI.setFont(SWTResourceManager.getFont(UI_FONT, UI_FONT_SIZE,
                 SWT.NORMAL));
         _todoListUI.setBackground(SWTResourceManager.getColor(89, 89, 89));
-        
+
         _backgroundBox = new StyledText(_shell, SWT.NONE);
         _backgroundBox.setDoubleClickEnabled(false);
         _backgroundBox.setEnabled(false);
         _backgroundBox.setEditable(false);
 
         resetPanel();
-        
+
         _userInputTextField.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 int key = e.keyCode;
                 switch (key) {
                     case SWT.CR :
+                        showBusyStatus();
                         String command = _userInputTextField.getText();
                         if (_commandHistory.size() < 5) {
                             _commandHistory.push(command);
@@ -455,11 +436,13 @@ public class MinaGuiUI extends MinaView {
                             _commandHistory.push(command);
                         }
                         _commandPosition = 0;
-                        if (command.trim().toLowerCase().equals("help")||command.trim().toLowerCase().equals("-h")){
-                        	startHelpWindows();
+                        if (command.trim().toLowerCase().equals("help") || command
+                                .trim().toLowerCase().equals("-h")) {
+                            startHelpWindows();
                         } else {
-                        _taskView = _commandController.processUserInput(
-                                command, _eventPage, _deadlinePage, _todoPage);
+                            _taskView = _commandController.processUserInput(
+                                    command, _eventPage, _deadlinePage,
+                                    _todoPage);
                         }
                         _userInputTextField.setText(EMPTY_STRING);
                         _eventPage = 1;
@@ -723,22 +706,23 @@ public class MinaGuiUI extends MinaView {
     @Override
     public void displayOutput() {
         logger.log(Level.INFO, "shell diplay output");
-        final String outputMessage = _taskView.getStatus();
         _display.asyncExec(new Runnable() {
             @Override
             public void run() {
+                String outputMessage = _taskView.getStatus();
+                _shell.setCursor(_display.getSystemCursor(SWT.CURSOR_ARROW));
                 if (outputMessage.contains("Error") || outputMessage
                         .contains("invalid")) {
-                    _statusBar.setBackground(SWTResourceManager.getColor(247,
-                            150, 70));
+                    _statusBar.setBackground(SWTResourceManager.getColor(217,
+                            83, 79));
                     if (outputMessage.contains("Error")) {
                         _statusBar.setText(ERROR);
                     } else {
                         _statusBar.setText(INVALID_COMMAND);
                     }
                 } else {
-                    _statusBar.setBackground(SWTResourceManager.getColor(155,
-                            187, 89));
+                    _statusBar.setBackground(SWTResourceManager.getColor(92,
+                            184, 92));
                     if (outputMessage.contains("welcome")) {
                         _statusBar.setText(outputMessage);
                     } else {
@@ -746,6 +730,21 @@ public class MinaGuiUI extends MinaView {
                     }
                 }
             }
+        });
+    }
+
+    private void showBusyStatus() {
+        _display.syncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                _statusBar.setText(BUSY);
+                _statusBar.setBackground(SWTResourceManager.getColor(91, 192,
+                        222));
+                _shell.setCursor(_display.getSystemCursor(SWT.CURSOR_WAIT));
+                _display.update();
+            }
+
         });
     }
 
@@ -826,8 +825,7 @@ public class MinaGuiUI extends MinaView {
             }
             String eventStringIndex = "\t" + (i + 1) + ". ";
             String eventDescription = event.getDescription() + "\n";
-            String eventTime = "\t\t" + DateUtil
-                    .displayTimeOnly(itemStartDate) +
+            String eventTime = "\t\t" + DateUtil.displayTimeOnly(itemStartDate) +
                     " - " +
                     (DateUtil.isSameDateCalendar(itemStartDate, itemEndDate) ? DateUtil
                             .displayTimeOnly(itemEndDate) : DateUtil
@@ -1179,17 +1177,17 @@ public class MinaGuiUI extends MinaView {
             _todoNextPage.setBounds(0, 0, 0, 0);
         }
     }
-    
-    public void startHelpWindows(){
+
+    public void startHelpWindows() {
         _helpWindowBorder.setVisible(true);
         _helpWindow.setVisible(true);
         _help.setDefaultMenu();
         HelperView defaultView = _help.getDefaultMenu();
         _helpWindow.append(defaultView.getHelperDescription());
-        for (int i=0; i<defaultView.getHelperText().size(); i++){
-        	_helpWindow.append((i+1)+". ");
-        	_helpWindow.append(defaultView.getHelperText().get(i));
-        	_helpWindow.append("\n");
+        for (int i = 0; i < defaultView.getHelperText().size(); i++) {
+            _helpWindow.append((i + 1) + ". ");
+            _helpWindow.append(defaultView.getHelperText().get(i));
+            _helpWindow.append("\n");
         }
         _helpWindow.append("\n[ESC:Exit help menu]");
         _userInputTextField.addListener(SWT.KeyUp, new Listener() {
@@ -1198,55 +1196,59 @@ public class MinaGuiUI extends MinaView {
                     HelperView view = _help.getHelperView(0);
                     _helpWindow.setText(EMPTY_STRING);
                     _helpWindow.append(view.getHelperDescription());
-                    for (int i=0; i<view.getHelperText().size(); i++){
-                    	_helpWindow.append((i+1)+". ");
-                    	_helpWindow.append(view.getHelperText().get(i));
-                    	_helpWindow.append("\n");
+                    for (int i = 0; i < view.getHelperText().size(); i++) {
+                        _helpWindow.append((i + 1) + ". ");
+                        _helpWindow.append(view.getHelperText().get(i));
+                        _helpWindow.append("\n");
                     }
-                    if (view.getHelperDescription().contains("Help Contents")){
-                    	_helpWindow.append("\n[ESC:Exit help menu]");
+                    if (view.getHelperDescription().contains("Help Contents")) {
+                        _helpWindow.append("\n[ESC:Exit help menu]");
                     } else {
-                    	_helpWindow.append("\n[ESC:Exit help menu]\t\t\t\t[BACKSPACE:Back]");
+                        _helpWindow
+                                .append("\n[ESC:Exit help menu]\t\t\t\t[BACKSPACE:Back]");
                     }
                 }
                 if (event.keyCode == SWT.ESC) {
-                	_helpWindowBorder.setVisible(false);
+                    _helpWindowBorder.setVisible(false);
                     _helpWindow.setVisible(false);
-            		_helpWindow.setText(EMPTY_STRING);
+                    _helpWindow.setText(EMPTY_STRING);
                     _userInputTextField.forceFocus();
                 }
-                if (event.keyCode>='0'&&event.keyCode<='9'){
-                	int menu_index = Integer.parseInt(String
+                if (event.keyCode >= '0' && event.keyCode <= '9') {
+                    int menu_index = Integer.parseInt(String
                             .valueOf((char) event.keyCode));
-                	_userInputTextField.setText(EMPTY_STRING);
-                	HelperView view = _help.getHelperView(menu_index);
-                	if (view.getHelperFunction().equals("DISPLAY")){
-                		_helpWindow.setText(EMPTY_STRING);
-                		_helpWindow.append(view.getHelperDescription());
-                		for (int i=0; i<view.getHelperText().size(); i++){
-                        	_helpWindow.append((i+1)+". ");
-                        	_helpWindow.append(view.getHelperText().get(i));
-                        	_helpWindow.append("\n");
+                    _userInputTextField.setText(EMPTY_STRING);
+                    HelperView view = _help.getHelperView(menu_index);
+                    if (view.getHelperFunction().equals("DISPLAY")) {
+                        _helpWindow.setText(EMPTY_STRING);
+                        _helpWindow.append(view.getHelperDescription());
+                        for (int i = 0; i < view.getHelperText().size(); i++) {
+                            _helpWindow.append((i + 1) + ". ");
+                            _helpWindow.append(view.getHelperText().get(i));
+                            _helpWindow.append("\n");
                         }
-                		if (view.getHelperDescription().contains("Help Contents")){
-                        	_helpWindow.append("\n[ESC:Exit help menu]");
+                        if (view.getHelperDescription().contains(
+                                "Help Contents")) {
+                            _helpWindow.append("\n[ESC:Exit help menu]");
                         } else {
-                        	_helpWindow.append("\n[ESC:Exit help menu]\t\t\t\t[BACKSPACE:Back]");
+                            _helpWindow
+                                    .append("\n[ESC:Exit help menu]\t\t\t\t[BACKSPACE:Back]");
                         }
-                	} else if (view.getHelperFunction().equals("COPY")){
-                		String text = view.getHelperDescription();
-                		_helpWindowBorder.setVisible(false);
+                    } else if (view.getHelperFunction().equals("COPY")) {
+                        String text = view.getHelperDescription();
+                        _helpWindowBorder.setVisible(false);
                         _helpWindow.setVisible(false);
                         _helpWindow.setText(EMPTY_STRING);
                         _userInputTextField.forceFocus();
                         _userInputTextField.setText(text);
-                        _userInputTextField.setSelection(text.length(), text.length());
-                	}
-                } else if (_helpWindow.getVisible()){
-                	_userInputTextField.setText(EMPTY_STRING);
+                        _userInputTextField.setSelection(text.length(),
+                                text.length());
+                    }
+                } else if (_helpWindow.getVisible()) {
+                    _userInputTextField.setText(EMPTY_STRING);
                 }
             }
         });
-        
+
     }
 }
