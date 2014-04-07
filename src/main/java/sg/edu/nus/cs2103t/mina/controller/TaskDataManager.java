@@ -792,6 +792,8 @@ public class TaskDataManager {
             if (modifyParameters.getEndDate() != null || modifyParameters
                     .getTimeType() != null ||
                     modifyParameters.getFreqOfTimeType() != 0) {
+                // modify frequency of task, on top of modify description,
+                // priority ,task type
                 assert (modifyParameters.getNewTaskType() != TaskType.TODO);
 
                 deleteRecurringTasks(modifyParameters);
@@ -799,24 +801,40 @@ public class TaskDataManager {
                 modifyParameters.setNewTaskType(modifyParameters
                         .getNewTaskType() == null ? prevTask.getType()
                         : modifyParameters.getNewTaskType());
+                modifyParameters.setDescription(modifyParameters
+                        .getDescription() == null ? prevTask.getDescription()
+                        : modifyParameters.getDescription());
+                modifyParameters
+                        .setPriority(modifyParameters.getPriority() != modifyParameters
+                                .getPriority() ? prevTask.getPriority()
+                                : modifyParameters.getPriority());
 
                 returnTask = addRecurringTask(modifyParameters,
                         prevTask.getTag());
 
             } else {
-                Task<?> currTask = prevTask;
+                // only modify description, priority ,task type
 
-                for (int i = 0; i < _recurringTasks.get(prevTask.getTag())
-                        .size(); i++) {
-                    currTask = _recurringTasks.get(prevTask.getTag()).get(i);
+                Task<?> currTask = prevTask;
+                ArrayList<Task<?>> newRecurTaskList = new ArrayList<Task<?>>();
+                ArrayList<Task<?>> prevRecurTaskList = _recurringTasks
+                        .get(prevTask.getTag());
+                
+                for (int i = 0; i < prevRecurTaskList.size(); i++) {
+                    currTask = prevRecurTaskList.get(i);
 
                     DataParameter newSetOfParameters = createNewParameters(
                             modifyParameters, currTask);
 
-                    _recurringTasks.get(prevTask.getTag()).set(i,
-                            addRegTask(newSetOfParameters));
+                    newSetOfParameters.setTaskObject(currTask);
+                    Task<?> modifiedTask = modifyRegTask(newSetOfParameters);
+                    modifiedTask.setTag(prevTask.getTag());
+
+                    newRecurTaskList.add(modifiedTask);
 
                 }
+
+                _recurringTasks.put(prevTask.getTag(), newRecurTaskList);
 
                 returnTask = _recurringTasks.get(prevTask.getTag()).get(0);
 
@@ -834,6 +852,7 @@ public class TaskDataManager {
 
         if (prevTask != null) {
             _recurringTasks.get(prevTask.getTag()).remove(prevTask);
+
             // the moment one of the recurring task is modified, it does not
             // belong to the group of recurring tasks anymore
 
@@ -982,9 +1001,9 @@ public class TaskDataManager {
                 .getNewTaskType() == TaskType.UNKNOWN) {
             return null;
         } else {
-            
-            Task<?> prevTask = deleteTask(modifyParameters);
-            
+
+            Task<?> prevTask = deleteRegTask(modifyParameters);
+
             if (prevTask == null) {
                 return null;
             }
@@ -1115,7 +1134,7 @@ public class TaskDataManager {
             }
 
         }
-        
+
         return null;
     }
 
@@ -1204,10 +1223,10 @@ public class TaskDataManager {
 
     public Task<?> unblockTaks(DataParameter unblockParameters) {
         Task<?> unblockedTask = unblockParameters.getTaskObject();
-        
+
         return unblockedTask;
-    } 
-    
+    }
+
     /**
      * Marks a given task as uncompleted by setting its completed tag to false.
      * <p>

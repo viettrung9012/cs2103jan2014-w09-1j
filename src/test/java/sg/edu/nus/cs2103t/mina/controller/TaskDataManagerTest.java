@@ -855,9 +855,13 @@ public class TaskDataManagerTest {
             // TaskType.DEADLINE, TaskType.DEADLINE, 1, tdmTest
             // .getRecurringTasks().get("RECUR_0").get(1),
             // null, null, 0, null, null, false)));
-            // assertEquals(6, tdmTest.getUncompletedDeadlineTasks().size());
-            // assertEquals(5,
-            // tdmTest.getRecurringTasks().get("RECUR_0").size());
+            tdmTest.modifyTask(new DataParameter(
+                    "After lecture quiz (half done).", 'M', null, null,
+                    TaskType.DEADLINE, TaskType.DEADLINE, 1, tdmTest
+                            .getRecurringTasks().get("RECUR_0").get(1), null,
+                    null, 0, null, null, false));
+            assertEquals(6, tdmTest.getUncompletedDeadlineTasks().size());
+            assertEquals(5, tdmTest.getRecurringTasks().get("RECUR_0").size());
             tdmTest.modifyTask(new DataParameter(
                     "After lecture quiz (half done).", 'M', null, null,
                     TaskType.DEADLINE, TaskType.DEADLINE, 1, tdmTest
@@ -886,7 +890,7 @@ public class TaskDataManagerTest {
                             null, null, 0, null, null, false)));
             assertEquals(5, tdmTest.getUncompletedDeadlineTasks().size());
             assertEquals(1, tdmTest.getUncompletedEventTasks().size());
-            assertEquals(4, tdmTest.getRecurringTasks().get("RECUR_0").size());
+            assertEquals(3, tdmTest.getRecurringTasks().get("RECUR_0").size());
 
             expectedStartCal2.add(Calendar.MONTH, 2);
             expectedStartDate2 = expectedStartCal2.getTime();
@@ -914,9 +918,6 @@ public class TaskDataManagerTest {
                     tdmTest.getRecurringTasks().get("RECUR_0").get(1), null,
                     "DAY", 1, untilDeadlineRecur1.getTime(), null, true));
 
-            // TODO: something wrong here
-            // assertEquals(expectedRecur1,
-            // tdmTest.getRecurringTasks().get("RECUR_0").get(0));
             assertEquals(13, tdmTest.getRecurringTasks().get("RECUR_0").size());
 
         } catch (Exception e1) {
