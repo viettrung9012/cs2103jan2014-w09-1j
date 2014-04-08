@@ -789,28 +789,15 @@ public class TaskDataManager {
         Task<?> returnTask = null;
 
         if (prevTask != null) {
-            if (modifyParameters.getEndDate() != null || modifyParameters
-                    .getTimeType() != null ||
+            if (modifyParameters.getStartDate() != null || modifyParameters
+                    .getEndDate() != null ||
+                    modifyParameters.getTimeType() != null ||
                     modifyParameters.getFreqOfTimeType() != 0) {
                 // modify frequency of task, on top of modify description,
                 // priority ,task type
                 assert (modifyParameters.getNewTaskType() != TaskType.TODO);
 
-                deleteRecurringTasks(modifyParameters);
-
-                modifyParameters.setNewTaskType(modifyParameters
-                        .getNewTaskType() == null ? prevTask.getType()
-                        : modifyParameters.getNewTaskType());
-                modifyParameters.setDescription(modifyParameters
-                        .getDescription() == null ? prevTask.getDescription()
-                        : modifyParameters.getDescription());
-                modifyParameters
-                        .setPriority(modifyParameters.getPriority() != modifyParameters
-                                .getPriority() ? prevTask.getPriority()
-                                : modifyParameters.getPriority());
-
-                returnTask = addRecurringTask(modifyParameters,
-                        prevTask.getTag());
+                returnTask = rearrangeRecurringTasks(modifyParameters, prevTask);
 
             } else {
                 // only modify description, priority ,task type
@@ -819,7 +806,7 @@ public class TaskDataManager {
                 ArrayList<Task<?>> newRecurTaskList = new ArrayList<Task<?>>();
                 ArrayList<Task<?>> prevRecurTaskList = _recurringTasks
                         .get(prevTask.getTag());
-                
+
                 for (int i = 0; i < prevRecurTaskList.size(); i++) {
                     currTask = prevRecurTaskList.get(i);
 
@@ -843,6 +830,71 @@ public class TaskDataManager {
         }
 
         return null;
+    }
+
+    private Task<?> rearrangeRecurringTasks(DataParameter modifyParameters,
+            Task<?> prevTask) {
+        DataParameter newParameters = createNewParameters(modifyParameters,
+                prevTask);
+
+        if (prevTask.getType() == TaskType.DEADLINE && newParameters
+                .getNewTaskType() == TaskType.EVENT) {
+            DeadlineTask prevDeadlineTask = (DeadlineTask) prevTask;
+
+            if (newParameters.getStartDate() == null) {
+                newParameters
+                        .setStartDate(newParameters.getEndDate().compareTo(
+                                prevDeadlineTask.getEndTime()) < 0 ? newParameters
+                                .getEndDate() : prevDeadlineTask.getEndTime());
+                newParameters.setEndDate(newParameters.getEndDate().compareTo(
+                        prevDeadlineTask.getEndTime()) > 0 ? newParameters
+                        .getEndDate() : prevDeadlineTask.getEndTime());
+
+            } else if (newParameters.getEndDate() == null) {
+                newParameters.setEndDate(newParameters.getEndDate().compareTo(
+                        prevDeadlineTask.getEndTime()) > 0 ? newParameters
+                        .getEndDate() : prevDeadlineTask.getEndTime());
+                newParameters
+                        .setStartDate(newParameters.getEndDate().compareTo(
+                                prevDeadlineTask.getEndTime()) < 0 ? newParameters
+                                .getEndDate() : prevDeadlineTask.getEndTime());
+
+            } else {
+                return null;
+
+            }
+
+            if (_recurringTasks.get(prevTask.getTag()).indexOf(prevTask) != 0) {
+                int i = _recurringTasks.get(prevTask.getTag())
+                        .indexOf(prevTask);
+
+                Calendar currStartDate = Calendar.getInstance();
+                Calendar currEndDate = Calendar.getInstance();
+
+                currStartDate.setTime(newParameters.getStartDate());
+                currEndDate.setTime(newParameters.getEndDate());
+
+                while (i-- >= 0) {
+                    newParameters.setStartDate(updateDate(
+                            newParameters.getStartDate(),
+                            newParameters.getTimeType(),
+                            -1 * newParameters.getFreqOfTimeType()));
+                    newParameters.setEndDate(updateDate(
+                            newParameters.getEndDate(),
+                            newParameters.getTimeType(),
+                            -1 * newParameters.getFreqOfTimeType()));
+
+                }
+
+            }
+        }
+        
+        newParameters.setTaskObject(prevTask);
+        
+        deleteRecurringTasks(newParameters);
+
+        return addRecurringTask(newParameters, prevTask.getTag());
+
     }
 
     private Task<?> modfiyOneRecurringTask(DataParameter modifyParameters) {
