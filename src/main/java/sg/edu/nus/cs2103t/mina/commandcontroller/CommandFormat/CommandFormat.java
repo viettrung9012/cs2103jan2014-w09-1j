@@ -2,7 +2,6 @@ package sg.edu.nus.cs2103t.mina.commandcontroller.CommandFormat;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -39,6 +38,7 @@ import sg.edu.nus.cs2103t.mina.commandcontroller.keyword.StandardKeyword;
  * 
  */
 
+//@author A0099151B
 public abstract class CommandFormat{
     
     private static final int DESCRIPT_NOT_FOUND = -1;
@@ -250,17 +250,18 @@ public abstract class CommandFormat{
     private ArrayList<String> processKeyword(ArrayList<String> tokens, int i, String currWord) throws ParseException{
         currWord = createFormatedWord(currWord);
         logger.info("Getting keyword: " + currWord);
-        Keyword newKeyword = KeywordFactory.getInstance().createKeyword(currWord);
+        Keyword newKeyword = KeywordFactory.createKeyword(currWord);
         tokens = newKeyword.processKeyword(tokens, i, _argument);
         return tokens;
     }
 
     private boolean isValidKeyword(String currWord) {
         currWord = createFormatedWord(currWord);
-        return KeywordFactory.getInstance().isKeyword(currWord);
+        return KeywordFactory.isKeyword(currWord);
     }
 
     private String createFormatedWord(String currWord) {
+        currWord = currWord.toLowerCase();
         if (_isWrapped && !currWord.startsWith(StandardKeyword.DELIMITER)) {
             currWord = StandardKeyword.DELIMITER + currWord;
         }
