@@ -34,6 +34,7 @@ import sg.edu.nus.cs2103t.mina.model.parameter.TaskSetDataParameter;
  * @author duzhiyuan
  * @author joannemah
  */
+//@author A0080412W
 public class TaskDataManager {
     private static Logger logger = LogManager.getLogger(TaskDataManager.class
             .getName());
@@ -71,7 +72,8 @@ public class TaskDataManager {
     public TaskDataManager() {
         initiateVariables();
     }
-
+    
+    //@author A0909865X
     private void initiateVariables() {
         _uncompletedTodoTasks = new TreeSet<TodoTask>();
         _uncompletedDeadlineTasks = new TreeSet<DeadlineTask>();
@@ -1558,7 +1560,7 @@ public class TaskDataManager {
     	_completedEventTasks = completedEventTasks;
     	
     	_uncompletedTodoTasks = uncompletedTodoTasks;
-    	_uncompletedDeadlineTasks = uncompletedDeadlineTasks;
-    	_uncompletedEventTasks = uncompletedEventTasks;
+        _uncompletedDeadlineTasks = uncompletedDeadlineTasks;
+        _uncompletedEventTasks = uncompletedEventTasks;
     }
 }
