@@ -3,6 +3,13 @@ package sg.edu.nus.cs2103t.mina.view;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+/**
+ * Helper class uses for auto complete function
+ * 
+ * @author viettrung9012
+ * 
+ */
+
 public class AutoCompleteDB {
     TreeSet<String> proposals;
 

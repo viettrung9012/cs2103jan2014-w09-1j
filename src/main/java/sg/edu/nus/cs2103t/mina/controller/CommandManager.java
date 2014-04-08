@@ -9,6 +9,13 @@ import sg.edu.nus.cs2103t.mina.commandcontroller.CommandParser;
 import sg.edu.nus.cs2103t.mina.commandcontroller.CommandProcessor;
 import sg.edu.nus.cs2103t.mina.model.TaskView;
 
+/**
+ * Facade class uses for process user commands
+ * 
+ * @author viettrung9012
+ * 
+ */
+
 public class CommandManager {
 
     private TaskDataManager _taskDataManager;

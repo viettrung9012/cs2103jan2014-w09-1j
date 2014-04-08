@@ -2,6 +2,13 @@ package sg.edu.nus.cs2103t.mina.model;
 
 import java.util.ArrayList;
 
+/**
+ * View class uses for help display
+ * 
+ * @author viettrung9012
+ * 
+ */
+
 public class HelperView {
 	private String _helperFunction;
 	private ArrayList<String> _helperText;

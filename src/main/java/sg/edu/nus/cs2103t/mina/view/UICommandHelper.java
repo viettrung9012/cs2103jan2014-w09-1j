@@ -4,6 +4,13 @@ import java.util.ArrayList;
 
 import sg.edu.nus.cs2103t.mina.model.HelperView;
 
+/**
+ * Helper class uses for display help
+ * 
+ * @author viettrung9012
+ * 
+ */
+
 public class UICommandHelper {	
 	private final String MAIN_HELP_MENU_DESCRIPTION = "Help Contents\n\n\n";
 	

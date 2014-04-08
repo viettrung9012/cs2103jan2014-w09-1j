@@ -25,6 +25,13 @@ import sg.edu.nus.cs2103t.mina.model.parameter.FilterParameter;
 import sg.edu.nus.cs2103t.mina.model.parameter.SearchParameter;
 import sg.edu.nus.cs2103t.mina.utils.DateUtil;
 
+/**
+ * Processor class to process user input command
+ * 
+ * @author viettrung9012
+ * 
+ */
+
 public class CommandProcessor {
 
     private static final String DISPLAYING_SEARCHES = "Displaying searches!";

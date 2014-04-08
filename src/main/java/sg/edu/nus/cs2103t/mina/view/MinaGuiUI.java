@@ -44,6 +44,14 @@ import com.tulskiy.keymaster.common.HotKey;
 import com.tulskiy.keymaster.common.HotKeyListener;
 import com.tulskiy.keymaster.common.Provider;
 
+/**
+ * GUI class
+ * 
+ * @author viettrung9012
+ * @author wgx731
+ * 
+ */
+
 public class MinaGuiUI extends MinaView {
 
 	private static final String MENU_EXIT = "Exit";

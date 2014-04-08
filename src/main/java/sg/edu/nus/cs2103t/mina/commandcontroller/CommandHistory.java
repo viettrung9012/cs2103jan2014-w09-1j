@@ -10,6 +10,13 @@ import sg.edu.nus.cs2103t.mina.model.EventTask;
 import sg.edu.nus.cs2103t.mina.model.TodoTask;
 import sg.edu.nus.cs2103t.mina.model.parameter.FilterParameter;
 
+/**
+ * History class uses for Undo/Redo
+ * 
+ * @author viettrung9012
+ * 
+ */
+
 public class CommandHistory {
 	
 	private LinkedList<SortedSet<TodoTask>> _undoTodoUncompletedSet;
