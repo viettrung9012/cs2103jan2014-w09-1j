@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.rits.cloning.Cloner;
 
+import sg.edu.nus.cs2103t.mina.commandcontroller.keyword.CommandType;
 import sg.edu.nus.cs2103t.mina.controller.CommandManager;
 import sg.edu.nus.cs2103t.mina.controller.TaskDataManager;
 import sg.edu.nus.cs2103t.mina.controller.TaskFilterManager;
@@ -77,10 +78,6 @@ public class CommandProcessor {
 
     private static Logger logger = LogManager.getLogger(CommandManager.class
             .getName());
-
-    enum CommandType {
-        ADD, DELETE, MODIFY, COMPLETE, UNCOMPLETE, DISPLAY, SEARCH, UNDO, REDO, EXIT, INVALID
-    };
 
     // Constructor
     public CommandProcessor() {
