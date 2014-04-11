@@ -1161,9 +1161,12 @@ public class TaskDataManager {
         allDataList.add(new TaskSetDataParameter(_uncompletedTodoTasks,
                 TaskType.TODO, false));
 
-        _syncManager.saveAll(allDataList);
-
         syncHashMaps();
+
+        if (!_syncManager.saveAll(allDataList)) {
+            LogHelper.log(CLASS_NAME, Level.ERROR,
+                    "Unable to save Tasks. All data is lost.");
+        }
 
     }
 
