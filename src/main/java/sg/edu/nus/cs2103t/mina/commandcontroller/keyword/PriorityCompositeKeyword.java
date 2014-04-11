@@ -22,7 +22,7 @@ public class PriorityCompositeKeyword extends Keyword {
     
     private static Logger logger = LogManager.getLogger(PriorityCompositeKeyword.class
             .getName());
-    
+    private static final int LOOK_AHEAD_LIMIT = 1;
     
     public PriorityCompositeKeyword(StandardKeyword type) {
         super(type);

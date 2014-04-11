@@ -87,7 +87,7 @@ public class PriorityKeyword extends Keyword {
         int valueIndex = currIndex + nextIndex;
         String value = getValidValue(tokens, valueIndex); 
         if(value!=null) {
-            arguments.setKeywordValue(_type, value);
+            updateArgument(value, arguments);
             tokens = updateTokens(tokens, currIndex, valueIndex);
         } else {
             throw new ParseException(INVALID_PRIORITY, 0);
@@ -95,6 +95,11 @@ public class PriorityKeyword extends Keyword {
         return tokens;
     }
     
+    private void updateArgument(String value, Argument arguments) {
+        
+        arguments.setKeywordValue(_type, value);
+    }
+
     /**
      * Update the priority value and 
      * @param tokens

@@ -37,6 +37,10 @@ public abstract class Keyword {
         return lookahead.toString().trim();
     }
     
+    protected boolean hasExistingKeywordValue(Argument arguments) {
+        return arguments.hasValue(_type);
+    }
+    
     //Functions that need to be implemented
     protected abstract Keyword createKeyword();
     protected abstract void initValues();

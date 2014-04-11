@@ -65,7 +65,9 @@ public class EveryKeyword extends Keyword {
     }
 
     private void updateArgument(String everyKeyword, Argument argument) {
-        argument.setKeywordValue(_type, everyKeyword);
+        if(!hasExistingKeywordValue(argument)){
+            argument.setKeywordValue(_type, everyKeyword);
+        }
     }
 
     private ArrayList<String> nullifyTokens(ArrayList<String> tokens, int currIndex) {
