@@ -88,16 +88,20 @@ public class PriorityKeyword extends Keyword {
             int currIndex, int nextIndex, Argument arguments)
             throws ParseException {
         int valueIndex = currIndex + nextIndex;
-        String value = getValidValue(tokens, valueIndex);
-        if (value != null) {
-            arguments.setKeywordValue(_type, value);
+        String value = getValidValue(tokens, valueIndex); 
+        if(value!=null) {
+            updateArgument(value, arguments);
             tokens = updateTokens(tokens, currIndex, valueIndex);
         } else {
             throw new ParseException(INVALID_PRIORITY, 0);
         }
         return tokens;
     }
-
+    
+    private void updateArgument(String value, Argument arguments) {
+        
+        arguments.setKeywordValue(_type, value);
+    }
     /**
      * Update the priority value and
      * 

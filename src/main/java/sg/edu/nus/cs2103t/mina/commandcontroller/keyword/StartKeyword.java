@@ -252,7 +252,10 @@ public class StartKeyword extends Keyword {
     }
 
     private void updateArgument(Argument argument, String dateTime) {
-        argument.setKeywordValue(_type, dateTime.trim());
+        
+        if(!hasExistingKeywordValue(argument)){
+            argument.setKeywordValue(_type, dateTime.trim());
+        }
     }
 
     protected String getMilitaryDate(String rawDate) throws ParseException {

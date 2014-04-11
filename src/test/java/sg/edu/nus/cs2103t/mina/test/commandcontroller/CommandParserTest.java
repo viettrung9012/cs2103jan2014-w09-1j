@@ -380,7 +380,7 @@ public class CommandParserTest {
         variation = variationBuild.toString();
         LogHelper.log(CLASS_NAME, Level.INFO, variation);
         result = parser.convertCommand(variation);
-        // assertEquals("add urgent request from D -priority H", result);
+        assertEquals("add urgent request from D -priority H", result);
 
         setUp();
         variationBuild.append("add ");
@@ -389,7 +389,7 @@ public class CommandParserTest {
         variation = variationBuild.toString();
         LogHelper.log(CLASS_NAME, Level.INFO, variation);
         result = parser.convertCommand(variation);
-        // assertEquals("add urgent request from D -priority H", result);
+        assertEquals("add urgent request from D -priority H", result);
 
         setUp();
         variationBuild.append("add ");
@@ -399,7 +399,13 @@ public class CommandParserTest {
         LogHelper.log(CLASS_NAME, Level.INFO, variation);
         result = parser.convertCommand(variation);
         assertEquals("add do priority low queue assignment -priority H", result);
-
+        
+        setUp();
+        variation = "add 'no more priorities' urgent priority L";
+        result = parser.convertCommand(variation);
+        assertEquals("add no more priorities -priority H", result);
+        
+        
         setUp();
         variationBuild.append("add ");
         variationBuild
@@ -410,7 +416,7 @@ public class CommandParserTest {
         assertEquals(
                 "add submit homework so that I could do something -end 12032013235959",
                 result);
-
+        
         variation = "add today -end 0800 today tomorrow yesterday";
         result = parser.convertCommand(variation);
         String resultDate = today.format("DDMMYYYY");
@@ -425,7 +431,7 @@ public class CommandParserTest {
 
         variation = "add -description what";
         result = parser.convertCommand(variation);
-        // assertEquals("add -description what", result);
+        assertEquals("add -description what", result);
 
         // filter no special
         variation = "filter deadline complete";

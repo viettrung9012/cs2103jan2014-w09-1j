@@ -164,8 +164,10 @@ public class TaskIdKeyword extends Keyword {
         if (taskId == null) {
             throw new ParseException("Not a valid task id", 0);
         }
-
-        argument.setKeywordValue(_type, taskId);
+        
+        if (!hasExistingKeywordValue(argument)) {
+            argument.setKeywordValue(_type, taskId);
+        }
     }
 
     @Override
