@@ -1,7 +1,6 @@
 package sg.edu.nus.cs2103t.mina.controller;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,15 +13,12 @@ import java.util.TreeSet;
 import org.apache.logging.log4j.Level;
 
 import sg.edu.nus.cs2103t.mina.dao.MemoryDataObserver;
-
 import sg.edu.nus.cs2103t.mina.utils.LogHelper;
-
 import sg.edu.nus.cs2103t.mina.model.DeadlineTask;
 import sg.edu.nus.cs2103t.mina.model.EventTask;
 import sg.edu.nus.cs2103t.mina.model.Task;
 import sg.edu.nus.cs2103t.mina.model.TaskType;
 import sg.edu.nus.cs2103t.mina.model.TodoTask;
-
 import sg.edu.nus.cs2103t.mina.model.parameter.DataParameter;
 import sg.edu.nus.cs2103t.mina.model.parameter.TaskMapDataParameter;
 import sg.edu.nus.cs2103t.mina.model.parameter.TaskSetDataParameter;
@@ -549,16 +545,29 @@ public class TaskDataManager {
 
     private Task<?> deleteRecurringTasks(DataParameter deleteParameters) {
         Task<?> recurTaskToDelete = deleteParameters.getTaskObject();
+        boolean taskToDeleteIsComplete = recurTaskToDelete.isCompleted();
 
         if (_recurringTasks.containsKey(recurTaskToDelete.getTag())) {
-            ArrayList<Task<?>> listOfRecTasks = _recurringTasks
-                    .remove(recurTaskToDelete.getTag());
+            @SuppressWarnings("unchecked")
+            ArrayList<Task<?>> listOfRecTasks = (ArrayList<Task<?>>) _recurringTasks
+                    .get(recurTaskToDelete.getTag()).clone();
+            int sizeOfList = listOfRecTasks.size();
 
             if (deleteParameters.isModifyAll()) {
-                while (!listOfRecTasks.isEmpty()) {
-                    deleteParameters.setTaskObject(listOfRecTasks.remove(0));
-                    deleteRegTask(deleteParameters);
+                Task<?> currTask;
+
+                for (int i = 0; i < sizeOfList; i++) {
+                    currTask = _recurringTasks.get(recurTaskToDelete.getTag())
+                            .get(i);
+                    if (currTask.isCompleted() == taskToDeleteIsComplete) {
+                        listOfRecTasks.remove(currTask);
+                        deleteParameters.setTaskObject(currTask);
+                        
+                        deleteRegTask(deleteParameters);
+                    } // else, leave the task there
                 }
+
+                _recurringTasks.put(recurTaskToDelete.getTag(), listOfRecTasks);
             } else {
                 listOfRecTasks.remove(recurTaskToDelete);
                 if (listOfRecTasks.size() > 0) {
@@ -836,7 +845,6 @@ public class TaskDataManager {
             _completedDeadlineTasks.add((DeadlineTask) currTask);
         }
         returnTask = _recurringTasks.get(prevTask.getTag()).get(0);
-        _recurringTasks.remove(prevTask.getTag());
 
         return returnTask;
     }
@@ -856,7 +864,6 @@ public class TaskDataManager {
             _completedEventTasks.add((EventTask) currTask);
         }
         returnTask = _recurringTasks.get(prevTask.getTag()).get(0);
-        _recurringTasks.remove(prevTask.getTag());
 
         return returnTask;
     }
@@ -868,21 +875,26 @@ public class TaskDataManager {
         if (prevTask.getType().equals(TaskType.DEADLINE)) {
             Task<?> completedTask = completeRegDeadlineTask(completeParameters);
 
-            if (_recurringTasks.get(prevTask.getTag()).remove(prevTask)) {
-                return completedTask;
-            }
+            int prevIndex = _recurringTasks.get(prevTask.getTag()).indexOf(
+                    prevTask);
+            _recurringTasks.get(prevTask.getTag())
+                    .set(prevIndex, completedTask);
+
+            return completedTask;
         } else if (prevTask.getType().equals(TaskType.EVENT)) {
             Task<?> completedTask = completeRegEventTask(completeParameters);
 
-            if (_recurringTasks.get(prevTask.getTag()).remove(prevTask)) {
-                return completedTask;
-            }
+            int prevIndex = _recurringTasks.get(prevTask.getTag()).indexOf(
+                    prevTask);
+            _recurringTasks.get(prevTask.getTag())
+                    .set(prevIndex, completedTask);
+
+            return completedTask;
         } else {
             LogHelper.log(CLASS_NAME, Level.ERROR,
                     "Tasktype is invalid for a recurring task.");
             return null;
         }
-        return null;
     }
 
     private Task<?> markCompletedRegTask(DataParameter completeParameters) {
@@ -961,37 +973,6 @@ public class TaskDataManager {
                 .equals(TaskType.DEADLINE);
     }
 
-    /**
-     * Takes in all 6 of the Task TreeSets and overwrites them in TDM.
-     * <p>
-     * Used when doing undo.
-     * 
-     * @param newUncompletedTodoTasks
-     * @param newUncompletedDeadlineTasks
-     * @param newUncompletedEventTasks
-     * @param newCompletedTodoTasks
-     * @param newCompletedDeadlineTasks
-     * @param newCompletedEventTasks
-     */
-
-    public void setAllTreeSets(TreeSet<TodoTask> newUncompletedTodoTasks,
-            TreeSet<DeadlineTask> newUncompletedDeadlineTasks,
-            TreeSet<EventTask> newUncompletedEventTasks,
-            TreeSet<TodoTask> newCompletedTodoTasks,
-            TreeSet<DeadlineTask> newCompletedDeadlineTasks,
-            TreeSet<EventTask> newCompletedEventTasks) {
-
-        _uncompletedTodoTasks = newUncompletedTodoTasks;
-        _uncompletedDeadlineTasks = newUncompletedDeadlineTasks;
-        _uncompletedEventTasks = newUncompletedEventTasks;
-        _completedTodoTasks = newCompletedTodoTasks;
-        _completedDeadlineTasks = newCompletedDeadlineTasks;
-        _completedEventTasks = newCompletedEventTasks;
-
-        syncAllUncompletedTasks();
-        syncAllCompletedTasks();
-    }
-
     /* Sync Methods */
     private void syncAllUncompletedTasks() {
         for (MemoryDataObserver observer : _observers) {
@@ -1020,6 +1001,40 @@ public class TaskDataManager {
             observer.updateTaskMap(new TaskMapDataParameter(_recurringTasks,
                     _maxRecurTagInt));
         }
+    }
+
+    /**
+     * Replaces all 6 TreeSets with the respective TreeSets given. The map
+     * containing recurring tasks is then updated accordingly.
+     * <p>
+     * Used when doing undo.
+     * 
+     * @param uncompletedTodoTasks
+     * @param uncompletedDeadlineTasks
+     * @param uncompletedEventTasks
+     * @param completedTodoTasks
+     * @param completedDeadlineTasks
+     * @param completedEventTasks
+     */
+    public void updateTrees(SortedSet<TodoTask> uncompletedTodoTasks,
+            SortedSet<DeadlineTask> uncompletedDeadlineTasks,
+            SortedSet<EventTask> uncompletedEventTasks,
+            SortedSet<TodoTask> completedTodoTasks,
+            SortedSet<DeadlineTask> completedDeadlineTasks,
+            SortedSet<EventTask> completedEventTasks) {
+        _completedTodoTasks = completedTodoTasks;
+        _completedDeadlineTasks = completedDeadlineTasks;
+        _completedEventTasks = completedEventTasks;
+
+        _uncompletedTodoTasks = uncompletedTodoTasks;
+        _uncompletedDeadlineTasks = uncompletedDeadlineTasks;
+        _uncompletedEventTasks = uncompletedEventTasks;
+
+        syncAllUncompletedTasks();
+        syncAllCompletedTasks();
+
+        updateRecurMap();
+        syncHashMaps();
     }
 
     /**
@@ -1060,35 +1075,4 @@ public class TaskDataManager {
         _uncompletedEventTasks.clear();
         _recurringTasks.clear();
     }
-
-    /**
-     * Replaces all 6 TreeSets with the respective TreeSets given. The map
-     * containing recurring tasks is then updated accordingly.
-     * <p>
-     * Used when doing undo.
-     * 
-     * @param uncompletedTodoTasks
-     * @param uncompletedDeadlineTasks
-     * @param uncompletedEventTasks
-     * @param completedTodoTasks
-     * @param completedDeadlineTasks
-     * @param completedEventTasks
-     */
-    public void updateTrees(SortedSet<TodoTask> uncompletedTodoTasks,
-            SortedSet<DeadlineTask> uncompletedDeadlineTasks,
-            SortedSet<EventTask> uncompletedEventTasks,
-            SortedSet<TodoTask> completedTodoTasks,
-            SortedSet<DeadlineTask> completedDeadlineTasks,
-            SortedSet<EventTask> completedEventTasks) {
-        _completedTodoTasks = completedTodoTasks;
-        _completedDeadlineTasks = completedDeadlineTasks;
-        _completedEventTasks = completedEventTasks;
-
-        _uncompletedTodoTasks = uncompletedTodoTasks;
-        _uncompletedDeadlineTasks = uncompletedDeadlineTasks;
-        _uncompletedEventTasks = uncompletedEventTasks;
-
-        updateRecurMap();
-    }
-
 }
