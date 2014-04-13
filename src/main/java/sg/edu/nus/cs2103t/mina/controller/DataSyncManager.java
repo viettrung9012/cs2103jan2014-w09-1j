@@ -17,39 +17,43 @@ import sg.edu.nus.cs2103t.mina.model.parameter.TaskSetDataParameter;
 import sg.edu.nus.cs2103t.mina.utils.LogHelper;
 
 /**
- * Sync memory data to storage on predefined interval
- * 
- * @author wgx731
+ * DataSyncManager is a facade class responsible for providing all required API
+ * in one place.
  */
-// @author A0105853H
+//@author A0105853H
 public class DataSyncManager {
 
     private static final String CLASS_NAME = DataSyncManager.class.getName();
 
     private TaskDao _taskDao;
     private TaskMapDao _taskMapDao;
-    private MemoryDataObserver _dataOberserver;
+    private MemoryDataObserver _dataObserver;
 
     /**
-     * Create a self running timed task to sync memory data to storage
+     * Create a new DataSyncManager instance
      * 
-     * @param storage DAO object used to perform actual saving operation
+     * @param taskDao DAO for task tree set
+     * @param taskMapDao DAO for recurring task map
      */
     public DataSyncManager(TaskDao taskDao, TaskMapDao taskMapDao) {
-        super();
         _taskDao = taskDao;
         _taskMapDao = taskMapDao;
-        _dataOberserver = new MemoryDataObserverImp(taskDao, taskMapDao);
-    }
-
-    public MemoryDataObserver getDataOberserver() {
-        return _dataOberserver;
+        _dataObserver = new MemoryDataObserverImp(taskDao, taskMapDao);
     }
 
     /**
-     * Save all the data in given list to storage
+     * Getter for data observer
      * 
-     * @param changedDataList the list of data to be saved
+     * @return the data observer
+     */
+    public MemoryDataObserver getDataObserver() {
+        return _dataObserver;
+    }
+
+    /**
+     * Save all the changed data from the given list of tree set data to storage
+     * 
+     * @param changedDataList the list of tree set data to be saved
      */
     public boolean saveAll(List<TaskSetDataParameter> changedDataList) {
         for (TaskSetDataParameter changedData : changedDataList) {
@@ -65,17 +69,33 @@ public class DataSyncManager {
         return true;
     }
 
+    /**
+     * Save specific type of tree set data to storage
+     * 
+     * @param taskType the task type of the tree set
+     * @param isCompleted whether the task in the tree set is completed
+     */
     public SortedSet<? extends Task<?>> loadTaskSet(TaskType taskType,
             boolean isCompleted) throws IOException {
         return (SortedSet<? extends Task<?>>) _taskDao.loadTaskSet(taskType,
                 isCompleted);
     }
 
+    /**
+     * Save task map data to storage
+     * 
+     * @param taskMapData the task map data to be saved
+     */
     public void saveTaskMap(TaskMapDataParameter taskMapData)
             throws IOException {
         _taskMapDao.saveTaskMap(taskMapData);
     }
 
+    /**
+     * Load task map data from storage
+     * 
+     * @return the task map data to be loaded
+     */
     public TaskMapDataParameter loadTaskMap() {
         return _taskMapDao.loadTaskMap();
     }

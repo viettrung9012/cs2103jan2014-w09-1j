@@ -94,7 +94,7 @@ public class TaskDataManager {
         _syncManager = syncManager;
 
         _observers = new ArrayList<MemoryDataObserver>();
-        _observers.add(syncManager.getDataOberserver());
+        _observers.add(syncManager.getDataObserver());
 
         try {
             tempTasks = _syncManager.loadTaskSet(TaskType.TODO, false);

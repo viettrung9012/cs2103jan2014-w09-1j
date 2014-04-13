@@ -5,8 +5,6 @@ import sg.edu.nus.cs2103t.mina.model.parameter.TaskSetDataParameter;
 
 /**
  * Observe memory data (task set and task map) changes in MINA
- * 
- * @author wgx731
  */
 //@author A0105853H
 public interface MemoryDataObserver {

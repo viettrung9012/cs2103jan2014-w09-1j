@@ -18,6 +18,7 @@ import org.junit.Assert;
 
 import sg.edu.nus.cs2103t.mina.MinaDriver;
 import sg.edu.nus.cs2103t.mina.dao.impl.FileOperationHelper;
+import sg.edu.nus.cs2103t.mina.dao.impl.FileTaskMapDaoImpl;
 import sg.edu.nus.cs2103t.mina.dao.impl.JsonFileTaskDaoImpl;
 
 public abstract class MinaStepSkeleton {
@@ -36,7 +37,8 @@ public abstract class MinaStepSkeleton {
 
     private static FileOperationHelper jsonFileOperationHelper = new FileOperationHelper(
             JsonFileTaskDaoImpl.getCompletedSuffix(),
-            JsonFileTaskDaoImpl.getFileExtension());
+            JsonFileTaskDaoImpl.getFileExtension(),
+            FileTaskMapDaoImpl.getFileExtension());
 
     private final static CyclicBarrier swtBarrier = new CyclicBarrier(2);
     private static Thread uiThread;
@@ -86,7 +88,7 @@ public abstract class MinaStepSkeleton {
             }
         });
         driver.cleanUp();
-        jsonFileOperationHelper.cleanUp();
+        jsonFileOperationHelper.cleanAll();
     }
 
     /**

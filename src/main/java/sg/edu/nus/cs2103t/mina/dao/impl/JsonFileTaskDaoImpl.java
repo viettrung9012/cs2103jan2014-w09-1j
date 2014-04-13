@@ -44,16 +44,15 @@ public class JsonFileTaskDaoImpl implements TaskDao {
     /**
      * Create a new json file task dao instance and initialize required files
      */
-    public JsonFileTaskDaoImpl() {
-        _fileOperationHelper = new FileOperationHelper(COMPLETED_SUFFIX,
-                FILE_EXTENSION);
-        _fileOperationHelper.createFileStorage();
+    public JsonFileTaskDaoImpl(FileOperationHelper fileOperationHelper) {
+        _fileOperationHelper = fileOperationHelper;
+        _fileOperationHelper.createTaskSetDaoFiles();
     }
 
-    JsonFileTaskDaoImpl(Map<TaskType, String> storageMap) {
-        _fileOperationHelper = new FileOperationHelper(COMPLETED_SUFFIX,
-                FILE_EXTENSION, storageMap);
-        _fileOperationHelper.createFileStorage();
+    JsonFileTaskDaoImpl(FileOperationHelper fileOperationHelper,
+            Map<TaskType, String> storageMap) {
+        _fileOperationHelper = fileOperationHelper;
+        _fileOperationHelper.createTaskSetDaoFiles();
     }
 
     private BufferedWriter getOutputWriter(String fileName) throws IOException {
@@ -76,7 +75,7 @@ public class JsonFileTaskDaoImpl implements TaskDao {
         }
         String json = JsonHelper.taskSetToJson(taskSet, taskType);
         BufferedWriter writer = getOutputWriter(_fileOperationHelper
-                .getFileLocation(taskType, isCompleted));
+                .getTaskSetFileLocation(taskType, isCompleted));
         writer.write(json);
         writer.close();
     }
@@ -86,7 +85,7 @@ public class JsonFileTaskDaoImpl implements TaskDao {
             boolean isCompleted) throws IOException {
         assert taskType != TaskType.UNKNOWN;
         BufferedReader reader = getInputReader(_fileOperationHelper
-                .getFileLocation(taskType, isCompleted));
+                .getTaskSetFileLocation(taskType, isCompleted));
         StringBuffer sb = new StringBuffer();
         String line = null;
         while ((line = reader.readLine()) != null) {

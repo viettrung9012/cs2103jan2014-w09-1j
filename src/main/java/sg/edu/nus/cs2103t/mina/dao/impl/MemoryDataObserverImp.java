@@ -1,6 +1,3 @@
-/**
- * 
- */
 package sg.edu.nus.cs2103t.mina.dao.impl;
 
 import java.io.IOException;
@@ -15,8 +12,7 @@ import sg.edu.nus.cs2103t.mina.model.parameter.TaskSetDataParameter;
 import sg.edu.nus.cs2103t.mina.utils.LogHelper;
 
 /**
- * @author wgx731
- * 
+ * Memory Data Observer Implementation
  */
 public class MemoryDataObserverImp implements MemoryDataObserver {
 

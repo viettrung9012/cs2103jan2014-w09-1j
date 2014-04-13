@@ -29,7 +29,10 @@ public class JsonFileTaskSetDaoImplTest extends FileTaskSetDaoImplTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        storage = new JsonFileTaskDaoImpl(storageMap);
+        storage = new JsonFileTaskDaoImpl(new FileOperationHelper(
+                JsonFileTaskDaoImpl.getCompletedSuffix(),
+                JsonFileTaskDaoImpl.getFileExtension(),
+                FileTaskMapDaoImpl.getFileExtension()), storageMap);
     }
 
     @Override

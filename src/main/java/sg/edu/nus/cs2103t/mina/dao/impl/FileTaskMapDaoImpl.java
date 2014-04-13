@@ -2,7 +2,6 @@ package sg.edu.nus.cs2103t.mina.dao.impl;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,7 +16,6 @@ import org.apache.logging.log4j.Level;
 
 import sg.edu.nus.cs2103t.mina.dao.TaskMapDao;
 import sg.edu.nus.cs2103t.mina.model.parameter.TaskMapDataParameter;
-import sg.edu.nus.cs2103t.mina.utils.ConfigHelper;
 import sg.edu.nus.cs2103t.mina.utils.LogHelper;
 
 public class FileTaskMapDaoImpl implements TaskMapDao {
@@ -26,36 +24,30 @@ public class FileTaskMapDaoImpl implements TaskMapDao {
 
     private static final String FILE_EXTENSION = ".ser";
 
-    private String taskMapFile;
-
-    public FileTaskMapDaoImpl() {
-        taskMapFile = ConfigHelper.getProperty(ConfigHelper.TASK_MAP_KEY) + FILE_EXTENSION;
+    public static String getFileExtension() {
+        return FILE_EXTENSION;
     }
 
-    private void createFileIfNotExist(String fileName) {
-        File f = new File(fileName);
-        if (!f.exists()) {
-            try {
-                f.createNewFile();
-            } catch (IOException e) {
-                LogHelper.log(CLASS_NAME, Level.ERROR,
-                        "storage file is not created: " + e.getMessage());
-            }
-        }
+    private FileOperationHelper _fileOperationHelper;
+
+    public FileTaskMapDaoImpl(FileOperationHelper fileOperationHelper) {
+        _fileOperationHelper = fileOperationHelper;
     }
 
     private ObjectOutput getOutputWriter() throws IOException {
         OutputStream file;
-        createFileIfNotExist(taskMapFile);
-        file = new FileOutputStream(taskMapFile);
+        _fileOperationHelper.createTaskMapDaoFiles();
+        file = new FileOutputStream(
+                _fileOperationHelper.getTaskMapFileLocation());
         OutputStream buffer = new BufferedOutputStream(file);
         return new ObjectOutputStream(buffer);
     }
 
     private ObjectInput getInputReader() throws IOException {
         InputStream file;
-        createFileIfNotExist(taskMapFile);
-        file = new FileInputStream(taskMapFile);
+        _fileOperationHelper.createTaskMapDaoFiles();
+        file = new FileInputStream(
+                _fileOperationHelper.getTaskMapFileLocation());
         InputStream buffer = new BufferedInputStream(file);
         return new ObjectInputStream(buffer);
     }
