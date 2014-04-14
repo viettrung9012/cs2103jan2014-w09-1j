@@ -17,7 +17,7 @@ import sg.edu.nus.cs2103t.mina.steps.MinaDeadlineTaskSteps;
 /**
  * Mina deadline task integration test case
  */
-//@author A0105853H
+//@author A0099151B
 
 public class MinaDeadlineTaskIT extends JUnitStory {
 
