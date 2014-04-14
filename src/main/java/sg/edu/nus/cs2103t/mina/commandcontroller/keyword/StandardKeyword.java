@@ -13,6 +13,7 @@ package sg.edu.nus.cs2103t.mina.commandcontroller.keyword;
 //@author A0099151B
 public interface StandardKeyword {
     public static final String DELIMITER = "-";
+    public static final String DELIMITER_ESCAPE =  "\u2010";
     public String getFilePrefix();
     public String getFormattedKeyword();
     public String getKeyword();

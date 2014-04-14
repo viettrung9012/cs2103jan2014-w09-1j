@@ -21,7 +21,6 @@ public class DescriptionKeyword extends Keyword {
 
     private static final StandardKeyword DESCRIPTION = SimpleKeyword.DESCRIPTION;
     private static final String CLASS_NAME = DescriptionKeyword.class.getName();
-    private static final String DELIMITER_ESCAPE =  "\u2010";
     
     static {
         DescriptionKeyword newDescript = new DescriptionKeyword();
@@ -81,7 +80,7 @@ public class DescriptionKeyword extends Keyword {
         }
 
         String word = tokens.get(currIndex);
-        word = word.replace(StandardKeyword.DELIMITER, DELIMITER_ESCAPE);
+        word = word.replace(StandardKeyword.DELIMITER, StandardKeyword.DELIMITER_ESCAPE);
         
         LogHelper.log(CLASS_NAME, Level.INFO, "Appending " + word +
                 " to " +

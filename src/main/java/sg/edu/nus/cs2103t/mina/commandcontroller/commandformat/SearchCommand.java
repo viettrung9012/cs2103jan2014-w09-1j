@@ -9,13 +9,13 @@ import org.apache.logging.log4j.Level;
 
 import sg.edu.nus.cs2103t.mina.commandcontroller.keyword.CommandType;
 import sg.edu.nus.cs2103t.mina.commandcontroller.keyword.SimpleKeyword;
+import sg.edu.nus.cs2103t.mina.commandcontroller.keyword.StandardKeyword;
 import sg.edu.nus.cs2103t.mina.utils.LogHelper;
 
 //@author A0099151B
 public class SearchCommand extends CommandFormat {
 
     private static final String CLASS_NAME = SearchCommand.class.getName();
-
     private static final String SEARCH_DELIMIT = "//";
 
     public SearchCommand(CommandType commandType, String argumentStr)
@@ -32,6 +32,7 @@ public class SearchCommand extends CommandFormat {
     }
 
     private String processSearchToken(StringBuilder argBuilder) {
+        //remove the last '//' 
         int lastDelimiter = argBuilder.lastIndexOf(SEARCH_DELIMIT);
         String result = argBuilder.toString().substring(0, lastDelimiter);
         LogHelper.log(CLASS_NAME, Level.INFO, result);
@@ -40,33 +41,16 @@ public class SearchCommand extends CommandFormat {
 
     private StringBuilder extractSearchTokens(StringBuilder argBuilder) {
 
-        StringBuilder searchArg = new StringBuilder();
-        Pattern phrasePattern = Pattern.compile("\\s'.*?'\\s");
-        Matcher phraseMatcher = phrasePattern.matcher(argBuilder.toString());
+        StringBuilder searchArg = new StringBuilder();        
+        searchArg = extractPhrases(searchArg, argBuilder); 
+        searchArg = extractWords(searchArg, argBuilder);
+        
+        return searchArg;
+    }
 
-        ArrayList<String> phrases = new ArrayList<String>();
-        LogHelper.log(CLASS_NAME, Level.INFO,
-                "Match count: " + phraseMatcher.groupCount());
-
-        while (phraseMatcher.find()) {
-            String match = phraseMatcher.group();
-            phrases.add(match);
-            LogHelper.log(CLASS_NAME, Level.INFO, match);
-            int matchIndex = argBuilder.indexOf(match);
-            argBuilder.delete(matchIndex + 1, matchIndex + match.length());
-            argBuilder.insert(0, " ");
-            phraseMatcher.reset(argBuilder);
-        }
-
-        for (String phrase : phrases) {
-            phrase = phrase.trim();
-            int first = phrase.indexOf("'");
-            int last = phrase.lastIndexOf("'");
-            phrase = phrase.substring(first + 1, last);
-            searchArg.append(phrase.trim());
-            searchArg.append(SEARCH_DELIMIT);
-        }
-
+    private StringBuilder extractWords(StringBuilder searchArg,
+                                        StringBuilder argBuilder) {
+        
         String words[] = tokenizeString(argBuilder);
         for (int i = 0; i < words.length; i++) {
             String word = words[i].trim();
@@ -75,8 +59,55 @@ public class SearchCommand extends CommandFormat {
                 searchArg.append(SEARCH_DELIMIT);
             }
         }
+        return searchArg;
+    }
+
+    private StringBuilder extractPhrases(StringBuilder searchArg, StringBuilder argBuilder) {
+                
+        ArrayList<String> phrases = getPhrases(argBuilder);
+        searchArg = processPhrases(phrases, searchArg);
 
         return searchArg;
+    }
+
+    private StringBuilder processPhrases(ArrayList<String> phrases, StringBuilder searchArg) {
+        
+        for (String phrase : phrases) {
+            phrase = phrase.trim();
+            int first = phrase.indexOf("'");
+            int last = phrase.lastIndexOf("'");
+            phrase = phrase.substring(first + 1, last);
+            searchArg.append(phrase.trim());
+            searchArg.append(SEARCH_DELIMIT);
+        }
+        
+        return searchArg;
+    }
+
+    private ArrayList<String> getPhrases(StringBuilder argBuilder) {
+        
+        Pattern phrasePattern = Pattern.compile("\\s'.*?'\\s");
+        Matcher phraseMatcher = phrasePattern.matcher(argBuilder.toString());
+        ArrayList<String> phrases = new ArrayList<String>();
+        
+        LogHelper.log(CLASS_NAME, Level.INFO,
+                "Match count: " + phraseMatcher.groupCount());
+        
+        //Extract phrases and remove them from the original argument.
+        while (phraseMatcher.find()) {
+            String match = phraseMatcher.group();
+            phrases.add(match);
+            LogHelper.log(CLASS_NAME, Level.INFO, match);
+            int matchIndex = argBuilder.indexOf(match);
+            
+            argBuilder.delete(matchIndex + 1, matchIndex + match.length());
+            argBuilder.insert(0, " ");
+            
+            phraseMatcher.reset(argBuilder);
+        }
+        
+        return phrases;
+        
     }
 
     private String[] tokenizeString(StringBuilder rawString) {
@@ -85,6 +116,7 @@ public class SearchCommand extends CommandFormat {
 
     private StringBuilder prepArgument(String argumentStr) {
         String argument = " " + argumentStr + " ";
+        argument = argument.replace(StandardKeyword.DELIMITER, StandardKeyword.DELIMITER_ESCAPE);
         return new StringBuilder(argument);
 
     }

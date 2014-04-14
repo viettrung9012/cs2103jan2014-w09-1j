@@ -32,10 +32,10 @@ import sg.edu.nus.cs2103t.mina.utils.LogHelper;
 
 public abstract class MinaStepSkeleton {
 
-    private static final String TAB_SEPARATOR = "\t";
-    private static final String LINE_SEPARATOR = "line.separator";
-    private static final String TAB = "\\t";
-    private static final String NEXT_LINE = "\\n";
+    protected static final String TAB_SEPARATOR = "\t";
+    protected static final String LINE_SEPARATOR = "line.separator";
+    protected static final String TAB = "\\t";
+    protected static final String NEXT_LINE = "\\n";
 
     private static final String CLASS_NAME = MinaStepSkeleton.class.getName();
 
@@ -146,9 +146,9 @@ public abstract class MinaStepSkeleton {
         Assert.assertEquals(list.getTextOnLine(lineNum), task);
     }
 
-    @Then("the <type> list at line number <line> should be in <color> color")
+    @Then("the <type> list at line number <colorline> should be in <color> color")
     public void listContains(@Named("type") String type,
-            @Named("line") int line, @Named("color") String color) {
+            @Named("colorline") int line, @Named("color") String color) {
         int lineNum = line - 1;
         SWTBotStyledText list = getList(type);
         Assert.assertNotNull(list);
@@ -192,7 +192,7 @@ public abstract class MinaStepSkeleton {
         Assert.assertFalse(list.getText().contains(task));
     }
 
-    private SWTBotStyledText getList(String type) {
+    protected SWTBotStyledText getList(String type) {
         int listIndex = UNKOWN_INDEX;
         switch (type) {
             case TODO_TYPE :

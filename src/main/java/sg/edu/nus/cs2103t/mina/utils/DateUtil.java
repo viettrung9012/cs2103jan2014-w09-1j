@@ -113,7 +113,8 @@ public final class DateUtil {
 
         }
     };
-
+    
+    //@author A0099151B
     private static final LinkedHashMap<String, String> TIME_FORMAT_REGEX = new LinkedHashMap<String, String>() {
         private static final long serialVersionUID = 3L;
         {
@@ -162,12 +163,9 @@ public final class DateUtil {
             put("^\\d{1,2}th\\s[a-z]{3}\\s\\d{4}$", "dd MMM yyyy");
             put("^\\d{1,2}th\\s[a-z]{4,}\\s\\d{4}$", "dd MMMM yyyy");
 
-            // partial date i.e 12/3
-            // put("^\\d{1,2}-\\d{1,2}$", "dd-MM");
-            // put("^\\d{1,2}/\\d{1,2}$", "dd/MM");
         }
     };
-
+    
     private static final HashMap<String, String> PARTIAL_DATE_FORMAT = new HashMap<String, String>() {
         private static final long serialVersionUID = 4L;
         {
@@ -175,7 +173,8 @@ public final class DateUtil {
             put("^\\d{1,2}/\\d{1,2}$", "/");
         }
     };
-
+    
+    //@author BalusC
     private static final String CLASS_NAME = DateUtil.class.getName();
 
     private static final String MOCK_DATE = "25081989";
@@ -297,9 +296,7 @@ public final class DateUtil {
         }
     }
 
-    // From here on, this is our added methods and classes. Not the original
-    // author
-
+    //@author A0099151B
     public static boolean isTime(String token) {
         if (token == null) {
             return false;
@@ -436,10 +433,10 @@ public final class DateUtil {
     public static DateTime getToday() {
         return DateTime.today(TimeZone.getDefault());
     }
-
+    
+    //@author BalusC
     // Checkers
     // -----------------------------------------------------------------------------------
-
     /**
      * Determine SimpleDateFormat pattern matching with the given date string.
      * Returns null if format is unknown. You can simply extend DateUtil with
@@ -459,9 +456,9 @@ public final class DateUtil {
         }
         return null; // Unknown format.
     }
-
-    // Comparator
+    
     //@author A0099324X
+    // Comparator
     /**
      * Determine whether two Calendar instances are on the same date (time can
      * be different)

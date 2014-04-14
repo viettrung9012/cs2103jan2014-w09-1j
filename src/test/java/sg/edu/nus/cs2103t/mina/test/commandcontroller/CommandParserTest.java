@@ -1022,7 +1022,11 @@ public class CommandParserTest {
         variation = "search 'hohoho hohoho ' 'sasads dfdf' ' vvvvv '";
         result = parser.convertCommand(variation);
         assertEquals("search hohoho hohoho//sasads dfdf//vvvvv", result);
-
+        
+        variation = "search dog 'and what the ' cats 'search -start' frodo";
+        result = parser.convertCommand(variation);
+        assertEquals("search and what the//search \u2010start//dog//cats//frodo", result);
+        
     }
 
     @Test
